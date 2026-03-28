@@ -109,7 +109,9 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
     instance_dim = layers[2] + layers[3]
     model = ScRGCL.ScRGCL(encoder_q, encoder_k, instance_projector, cluster_projector, cluster_number, instance_dim, m=m)
     data_aug_model.to(device)
+    print("timing")
     model.to(device)
+    print("timing")
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=lr)
 
     criterion_rgc = st_loss.RGCLoss(temperature=temperature, device=device)
@@ -155,6 +157,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                 input1 = torch.FloatTensor(input1 + noise_vec).to(device)
                 noise_vec = torch.FloatTensor(np.random.normal(loc=0, scale=noise, size=input2.shape))
                 input2 = torch.FloatTensor(input2 + noise_vec).to(device)
+            
             q_instance, q_cluster, k_instance, k_cluster = model(input1, input2)
 
             pseudo_label, centers, dis = clustering(feature=q_instance.detach(),
@@ -207,8 +210,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
         
         if evaluate_training and real_label is not None:
             model.eval()
-            data_aug_model.eval()
-        
+            # data_aug_model.eval()
             
             if noise is None or noise == 0:
                 input1 = torch.FloatTensor(gene_exp).to(device)

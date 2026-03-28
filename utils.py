@@ -175,10 +175,10 @@ def counts_normalize(adata, copy=True, highly_genes=None, filter_min_counts=True
 
 def get_device(use_cpu):
     if use_cpu is None:
-        if torch.cuda.is_available():
-            device = torch.device('cuda:0')
-        else:
+        if os.environ.get('CUDA_VISIBLE_DEVICES', '') == '' or not torch.cuda.is_available():
             device = torch.device('cpu')
+        else:
+            device = torch.device('cuda')
     else:
         device = torch.device('cpu')
     return device

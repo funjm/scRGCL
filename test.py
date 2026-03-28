@@ -19,7 +19,7 @@ from utils import get_device, high_confidence_adj, get_dataset, set_random_seed
 
 def load_model(model_path, device):
     """Load model from checkpoint"""
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.load(model_path, map_location=device, weights_only=False)
 
     # Extract dimensions from saved state dict
     # Infer dimensions from cluster_projector layer
@@ -78,6 +78,8 @@ def test_model(dataset, model_path=None, use_cpu=None, temperature=0.07, dropout
     dict : Evaluation metrics (acc, nmi, ari, f1)
     """
     device = get_device(use_cpu)
+    print(f"DEBUG: Using device: {device}")
+    print(f"DEBUG: CUDA_VISIBLE_DEVICES: {os.environ.get('CUDA_VISIBLE_DEVICES', 'not set')}")
     set_random_seed(seed)
 
     # Load data
@@ -95,7 +97,7 @@ def test_model(dataset, model_path=None, use_cpu=None, temperature=0.07, dropout
         raise FileNotFoundError(f"Model not found at {model_path}")
 
     print(f"Loading model from {model_path}")
-    checkpoint = torch.load(model_path, map_location=device)
+    checkpoint = torch.load(model_path, map_location=device, weights_only=False)
 
     # Use m from checkpoint if available
     m = checkpoint.get('m', m)
@@ -161,7 +163,7 @@ def main():
     parser = argparse.ArgumentParser(description='ScRGCL Test', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--name', type=str, required=True, help='Dataset name')
     parser.add_argument('--model_path', type=str, default=None, help='Path to saved model')
-    parser.add_argument('--cuda', type=bool, default=True, help='Use CUDA')
+    parser.add_argument('--cuda', action='store_true', default=False, help='Use CUDA (if available)')
     parser.add_argument('--seed', type=int, default=100, help='Random seed')
     parser.add_argument('--temperature', type=float, default=0.07, help='Temperature')
     parser.add_argument('--dropout', type=float, default=0.9, help='Dropout rate')

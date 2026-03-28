@@ -1,6 +1,6 @@
 import os
 import time
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+# os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import torch
 
 from opt import args, reset_args, test_ablation

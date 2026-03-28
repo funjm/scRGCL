@@ -26,7 +26,7 @@ from torch.utils.tensorboard import SummaryWriter
 from sklearn.manifold import TSNE
 
 
-def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, save_dir="/home/yeboyang/workspace/bioinfo/ScRGCL_new/visualization/figs/tsne", title=None, scores=None):
+def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, title=None, scores=None):
     """
     绘制并保存 t-SNE 可视化图
     :param features: 特征矩阵，shape=(n_samples, n_features)
@@ -57,9 +57,9 @@ def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, save_di
         plt.title(f"ari:{ari:.4f} nmi:{nmi:.4f}")
     else:
         plt.title(f"{dataset_name}")
-    
-    methods_name = "ScRGCL_new"
-    save_dir = os.path.join(f"/home/yeboyang/workspace/bioinfo/{methods_name}/visualization/figs/tsne", dataset_name)
+
+    # Use relative path based on current working directory
+    save_dir = os.path.join("visualization", "figs", "tsne", dataset_name)
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, f"{dataset_name}_epoch{epoch}_perplexity{tsne_perplexity}_{title}.png")
     # save_path = os.path.join(save_dir, "tmp-perplexity100")

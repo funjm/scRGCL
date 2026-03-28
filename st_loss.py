@@ -195,7 +195,7 @@ class RGCLoss(nn.Module):
         # 保存邻居信息
         if save_adj_flag == 1:  
                           # 1
-            save_dir = os.path.join("/home/yeboyang/workspace/bioinfo/ScRGCL_new/adj/", dataset_name)
+            save_dir = os.path.join("adj", dataset_name)
             os.makedirs(save_dir, exist_ok=True)
             save_path = os.path.join(save_dir, f"{dataset_name}_topk_sim_matrix_epoch_{epoch}.npy")
             # np.save(save_path, topk_sim_matrix.cpu().numpy())

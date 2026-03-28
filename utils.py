@@ -27,16 +27,18 @@ import matplotlib.pyplot as plt
 
 h5_datasets = []
 h5ad_datasets = ['Romanov', 'Pancreas_mouse', '10X_PBMC', 'Quake_10x_Bladder', 'Quake_10x_Spleen',
-                 "Quake_Smart-seq2_Lung", "Quake_Smart-seq2_Diaphragm", "Quake_Smart-seq2_Trachea", 
+                 "Quake_Smart-seq2_Lung", "Quake_Smart-seq2_Diaphragm", "Quake_Smart-seq2_Trachea",
                  'Quake_Smart-seq2_Limb_Muscle', 'Quake_10x_Limb_Muscle']
 ziscDesk_datasets = ['Muraro', 'Pollen', 'Adam', 'Baron1', 'Baron2', 'Baron3', 'Baron4', 'Baron_mouse1', 'Chung']
 merged_dataset = ["human_brain", "Klein", "filtered_mPCTC"]
 ca_datasets = ['small_size_4000_Data_Dong2020_Prostate', 'Data_He2021_Prostate', 'small_size_4000_Data_Song2022_Prostate', 'small_size_4000_Data_Chen2021_Prostate']
 
+# Dataset path is at the same level as scRGCL (../dataset)
+DATASET_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'dataset')
 
 
 def get_dataset(dataset):
-    path = '/home/yeboyang/workspace/bioinfo/dataset'
+    path = DATASET_PATH
 
     if dataset in h5_datasets:
         data_h5 = h5py.File(f"{path}/h5ad_datasets/{args.name}.h5ad", 'r')
@@ -62,15 +64,15 @@ def get_dataset(dataset):
             real_label = celltype.values
         gene_exp = preprocess_h5ad(adata, args.select_gene)
     elif dataset in ziscDesk_datasets:
-        path = '/home/yeboyang/workspace/bioinfo/dataset/ziscDesk-single-cell-data-20241011T104023Z-001/ziscDesk-single-cell-data/'
+        ziscDesk_base = os.path.join(DATASET_PATH, 'ziscDesk-single-cell-data-20241011T104023Z-001', 'ziscDesk-single-cell-data')
 
-        gene_exp = np.load(os.path.join(path, dataset, 'expr.npz'))['arr_0']
-        real_label = pd.read_csv(os.path.join(path, dataset, 'Cells.csv'), index_col=0)['labels'].to_numpy()
+        gene_exp = np.load(os.path.join(ziscDesk_base, dataset, 'expr.npz'))['arr_0']
+        real_label = pd.read_csv(os.path.join(ziscDesk_base, dataset, 'Cells.csv'), index_col=0)['labels'].to_numpy()
         if gene_exp.shape[0] != len(real_label):
             gene_exp = gene_exp.T
         gene_exp = preprocess(gene_exp, args.select_gene)
     elif dataset in ca_datasets:
-        path = "/home/yeboyang/workspace/bioinfo/dataset/3ca/dataset/prostate/Data_Prostate"
+        ca_base = os.path.join(DATASET_PATH, '3ca', 'dataset', 'prostate', 'Data_Prostate')
         gene_exp = np.load(os.path.join(path, dataset, 'expr.npy'))
         real_label = pd.read_csv(os.path.join(path, dataset, 'y.csv'), index_col=0)['labels'].to_numpy()
         if gene_exp.shape[0] != len(real_label):

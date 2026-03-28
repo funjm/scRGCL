@@ -18,8 +18,6 @@ Tensor = torch.cuda.FloatTensor
 
 
 if __name__ == "__main__":
-    path = '/home/yeboyang/workspace/bioinfo/dataset/h5ad_datasets'
-
     data_dict = {0: 'Quake_10x_Bladder', 1: 'Quake_10x_Limb_Muscle', 2: 'Quake_10x_Spleen',
                  3: 'Quake_Smart-seq2_Diaphragm', 4: 'Quake_Smart-seq2_Limb_Muscle',
                  5: 'Romanov', 6: 'Muraro', 7: 'Klein', 8: 'Quake_Smart-seq2_Trachea',

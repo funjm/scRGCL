@@ -207,6 +207,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
         
         if evaluate_training and real_label is not None:
             model.eval()
+            data_aug_model.eval()
         
             
             if noise is None or noise == 0:
@@ -284,6 +285,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                     'acc': acc,
                     'nmi': nmi,
                     'f1': f1,
+                    'm': m,
                 }, save_path)
                 print(f"[Best Model] Saved to {save_path} (ARI: {ari:.4f})")
 

@@ -64,7 +64,7 @@ def initialize(X, n_clusters):
     return initial_state
 
 
-def k_means(X, n_clusters, distance='euclidean', tol=1e-4, device=torch.device('cuda:0')):
+def k_means(X, n_clusters, distance='euclidean', tol=1e-4, device=torch.device('cuda:0'), seed=42):
     """
     Perform k-means algorithm on X.
 
@@ -72,22 +72,24 @@ def k_means(X, n_clusters, distance='euclidean', tol=1e-4, device=torch.device('
     - X: torch.tensor. matrix
     - n_clusters: int. number of clusters
     - distance: str. pairwise distance 'euclidean'(default) or 'cosine'
-    - tol: float. Threshold 
+    - tol: float. Threshold
     - device: torch.device. Running device
-    
+    - seed: int. Random seed for reproducibility
+
     Return
     - choice_cluster: torch.tensor. Predicted cluster ids.
     - initial_state: torch.tensor. Predicted cluster centers.
     - dis: minimum pair wise distance.
     """
     if distance == 'euclidean':
-        # pairwise_distance_function = pairwise_distance
         pairwise_distance_function = euclidean_distance
     elif distance == 'cosine':
-        # pairwise_distance_function = pairwise_cosine
         pairwise_distance_function = cosine_distance
     else:
         raise NotImplementedError(f"Not implemented '{distance}' distance!")
+
+    # Set random seed for reproducibility
+    np.random.seed(seed)
 
     # convert to float
     X = X.float()
@@ -96,7 +98,6 @@ def k_means(X, n_clusters, distance='euclidean', tol=1e-4, device=torch.device('
 
     # initialize
     dis_min = float('inf')
-    # initial_state_best = initialize(X, n_clusters)
     initial_state_best = None
     for i in range(20):
         initial_state = initialize(X, n_clusters)

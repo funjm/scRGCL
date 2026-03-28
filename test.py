@@ -97,6 +97,9 @@ def test_model(dataset, model_path=None, use_cpu=None, temperature=0.07, dropout
     print(f"Loading model from {model_path}")
     checkpoint = torch.load(model_path, map_location=device)
 
+    # Use m from checkpoint if available
+    m = checkpoint.get('m', m)
+
     # Build model architecture (same as training)
     dims = np.concatenate([[gene_exp.shape[1]], layers])
     data_aug_model = ScRGCL.DataAug(dropout=dropout)
@@ -114,6 +117,7 @@ def test_model(dataset, model_path=None, use_cpu=None, temperature=0.07, dropout
 
     data_aug_model.to(device)
     model.to(device)
+    data_aug_model.eval()
     model.eval()
 
     # Evaluate

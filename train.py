@@ -1,7 +1,5 @@
 import os
-import ScCCL
-# import opt
-# from opt import args
+import ScRGCL
 import time
 import numpy as np
 import scipy.io as sio
@@ -13,28 +11,8 @@ import st_loss
 from st_loss import cosine_sim, compute_knn
 from clustering import clustering
 from evaluation import evaluate
-import os
-import ScCCL
-import time
-import numpy as np
-import torch
-from sklearn.cluster import KMeans
-from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
-import st_loss
-from st_loss import cosine_sim, compute_knn
-from clustering import clustering
-from evaluation import evaluate
-
 import shap
-from utils import (get_device,
-                   adjust_learning_rate,
-                   save_model,
-                   cluster_embedding,
-                   high_confidence_adj,
-                   evaluate_soft,
-                   plot_learning_curves)
 import scipy.io as sio
-import torch.nn.functional as F
 from utils import (get_device,
                    adjust_learning_rate,
                    save_model,
@@ -48,7 +26,7 @@ from torch.utils.tensorboard import SummaryWriter
 from sklearn.manifold import TSNE
 
 
-def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, save_dir="/home/yeboyang/workspace/bioinfo/scccl_new/visualization/figs/tsne", title=None, scores=None):
+def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, save_dir="/home/yeboyang/workspace/bioinfo/ScRGCL_new/visualization/figs/tsne", title=None, scores=None):
     """
     绘制并保存 t-SNE 可视化图
     :param features: 特征矩阵，shape=(n_samples, n_features)
@@ -80,7 +58,7 @@ def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, save_di
     else:
         plt.title(f"{dataset_name}")
     
-    methods_name = "scccl_new"
+    methods_name = "ScRGCL_new"
     save_dir = os.path.join(f"/home/yeboyang/workspace/bioinfo/{methods_name}/visualization/figs/tsne", dataset_name)
     os.makedirs(save_dir, exist_ok=True)
     save_path = os.path.join(save_dir, f"{dataset_name}_epoch{epoch}_perplexity{tsne_perplexity}_{title}.png")
@@ -126,13 +104,13 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
     writer = SummaryWriter(log_dir=tb_log_dir)
 
     dims = np.concatenate([[gene_exp.shape[1]], layers])
-    data_aug_model = ScCCL.DataAug(dropout=dropout)
-    encoder_q = ScCCL.BaseEncoder(dims)
-    encoder_k = ScCCL.BaseEncoder(dims)
-    instance_projector = ScCCL.MLP(layers[2], layers[2] + layers[3], layers[2] + layers[3])
-    cluster_projector = ScCCL.MLP(layers[2], layers[3], cluster_number)
+    data_aug_model = ScRGCL.DataAug(dropout=dropout)
+    encoder_q = ScRGCL.BaseEncoder(dims)
+    encoder_k = ScRGCL.BaseEncoder(dims)
+    instance_projector = ScRGCL.MLP(layers[2], layers[2] + layers[3], layers[2] + layers[3])
+    cluster_projector = ScRGCL.MLP(layers[2], layers[3], cluster_number)
     instance_dim = layers[2] + layers[3]
-    model = ScCCL.ScCCL(encoder_q, encoder_k, instance_projector, cluster_projector, cluster_number, instance_dim, m=m)
+    model = ScRGCL.ScRGCL(encoder_q, encoder_k, instance_projector, cluster_projector, cluster_number, instance_dim, m=m)
     data_aug_model.to(device)
     model.to(device)
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=lr)
@@ -292,19 +270,38 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                 best_ari = ari
                 best_f1 = f1
                 best_epoch = epoch
-                
+
+                # Save best model parameters
+                save_dir = os.path.join(os.getcwd(), "saved_models", dataset)
+                os.makedirs(save_dir, exist_ok=True)
+                save_path = os.path.join(save_dir, "best_model.pt")
+                torch.save({
+                    'model_state_dict': model.state_dict(),
+                    'data_aug_state_dict': data_aug_model.state_dict(),
+                    'encoder_q_state_dict': encoder_q.state_dict(),
+                    'encoder_k_state_dict': encoder_k.state_dict(),
+                    'instance_projector_state_dict': instance_projector.state_dict(),
+                    'cluster_projector_state_dict': cluster_projector.state_dict(),
+                    'epoch': epoch,
+                    'ari': ari,
+                    'acc': acc,
+                    'nmi': nmi,
+                    'f1': f1,
+                }, save_path)
+                print(f"[Best Model] Saved to {save_path} (ARI: {ari:.4f})")
+
                 if save_fig_flag:
                     print("**********************save umap figure**********************")
                     import utils
-                    utils.umap_visual(features_np, 
-                        label = label_pred, 
-                        title='scRGCL pred label', 
+                    utils.umap_visual(features_np,
+                        label = label_pred,
+                        title='scRGCL pred label',
                         save_path = os.path.join(os.getcwd(), "umap_figure", dataset+"_pred_label.png"),
                         asw_used=True)
-                        
-                    utils.umap_visual(features_np, 
-                        label = real_label, 
-                        title='scRGCL real label', 
+
+                    utils.umap_visual(features_np,
+                        label = real_label,
+                        title='scRGCL real label',
                         save_path = os.path.join(os.getcwd(), "umap_figure", dataset+"_real_label.png"),
                         asw_used=True)
             

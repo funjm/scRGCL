@@ -1,5 +1,5 @@
 import optuna
-import train1
+import train
 from opt import parser
 from utils import get_dataset
 import numpy as np

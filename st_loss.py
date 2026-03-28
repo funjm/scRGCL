@@ -183,24 +183,10 @@ class RGCLoss(nn.Module):
     def compute_laplacian(self, adj):
         degree_arr = torch.sum(adj, dim=1)
         degree_arr = 1 / degree_arr.pow(0.5)
-        degree_matrx = torch.diag(degree_arr)
-        L = torch.eye(adj.size()[0]).to(self.device) - torch.mm(torch.mm(degree_matrx, adj), degree_matrx)
+        degree_matrix = torch.diag(degree_arr)
+        L = torch.eye(adj.size()[0]).to(self.device) - torch.mm(torch.mm(degree_matrix, adj), degree_matrix)
 
         return L
-
-    # def forward(self, q_instance, k_instance, n_neighbors, temperature=1.0):
-    #     sim_matrix = self.cosine_sim(q_instance, k_instance)
-    #     graph = self.compute_knn(sim_matrix.clone().detach(), n_neighbors)
-    #     L = self.compute_laplacian(graph)
-    #     L = - (L - torch.diag_embed(torch.diag(L)))
-    #
-    #     sim_matrix_exp = torch.exp(sim_matrix / temperature)
-    #     pos_sim = torch.diag(sim_matrix_exp)
-    #     # (P + L*M) / N
-    #     loss = (pos_sim + torch.sum(sim_matrix_exp * L, dim=-1)) / (torch.sum(sim_matrix_exp, dim=-1))
-    #     loss = - torch.log(loss).mean()
-    #
-    #     return loss
 
     def forward(self, q_instance, k_instance, n_neighbors, kmeans_pseudo_adj, temperature=1.0, dataset_name=None, epoch=None, save_adj_flag=0, logger=None):
         sim_matrix = self.cosine_sim(q_instance, k_instance)
@@ -209,7 +195,7 @@ class RGCLoss(nn.Module):
         # 保存邻居信息
         if save_adj_flag == 1:  
                           # 1
-            save_dir = os.path.join("/home/yeboyang/workspace/bioinfo/scccl_new/adj/", dataset_name)
+            save_dir = os.path.join("/home/yeboyang/workspace/bioinfo/ScRGCL_new/adj/", dataset_name)
             os.makedirs(save_dir, exist_ok=True)
             save_path = os.path.join(save_dir, f"{dataset_name}_topk_sim_matrix_epoch_{epoch}.npy")
             # np.save(save_path, topk_sim_matrix.cpu().numpy())
@@ -217,27 +203,8 @@ class RGCLoss(nn.Module):
             save_path = os.path.join(save_dir, f"{dataset_name}_kmeans_pseudo_adj_epoch_{epoch}.npy")
             # np.save(save_path, kmeans_pseudo_adj.cpu().numpy())
             
-        #     print()
-        # # 在保存完邻接矩阵后，打印细胞100和200的邻居
-        #     # 取出topk_sim_matrix中第100行和第200行（索引99和199）
-        #     print(f"=================topk_sim_matrix n_neighbors:{n_neighbors}=================")
-        #     neighbors_100 = torch.nonzero(topk_sim_matrix[99], as_tuple=False).squeeze(-1).cpu().numpy()
-        #     neighbors_200 = torch.nonzero(topk_sim_matrix[199], as_tuple=False).squeeze(-1).cpu().numpy()
-        #     logger.write(f"[Epoch {epoch}] 细胞100的邻居({len(neighbors_100)}): {neighbors_100}")
-        #     logger.write(f"[Epoch {epoch}] 细胞200的邻居({len(neighbors_200)}): {neighbors_200}")
-        #     logger.write(f"最多有{max(topk_sim_matrix.sum(dim=1))}个邻居")
-        #     logger.write(f"最少有{min(topk_sim_matrix.sum(dim=1))}个邻居")
-            
-        #     print(f"=================kmeans_pseudo_adj topk=================")
-        #     neighbors_100 = torch.nonzero(kmeans_pseudo_adj[99], as_tuple=False).squeeze(-1).cpu().numpy()
-        #     neighbors_200 = torch.nonzero(kmeans_pseudo_adj[199], as_tuple=False).squeeze(-1).cpu().numpy()
-        #     logger.write(f"[Epoch {epoch}] 细胞100的邻居（{len(neighbors_100)}）: {neighbors_100}")
-        #     logger.write(f"[Epoch {epoch}] 细胞200的邻居（{len(neighbors_200)}）: {neighbors_200}")
-        #     logger.write(f"最多有{max(kmeans_pseudo_adj.sum(dim=1))}个邻居")
-        #     logger.write(f"最少有{min(kmeans_pseudo_adj.sum(dim=1))}个邻居")
+
         L = self.compute_laplacian(graph)
-        # L = L + kmeans_pseudo_adj                    # 2
-        # L = torch.clamp(L, max=1)
         L = - (L - torch.diag_embed(torch.diag(L)))
         # L.fill_diagonal_(0)  # 原地操作，直接修改 data1
 
@@ -250,22 +217,7 @@ class RGCLoss(nn.Module):
         # return loss
         return loss, graph, topk_sim_matrix
 
-    # def forward(self, q_instance, k_instance, n_neighbors, pseudo_adj, temperature=1.0):
-    #     sim_matrix = self.cosine_sim(q_instance, k_instance)
-    #     graph = self.compute_knn(sim_matrix.clone().detach(), n_neighbors)
-    #     mask = (pseudo_adj == 0).float()    # 1: True negtive pair
-    #     graph = graph + pseudo_adj
-    #     graph = torch.clamp(graph, max=1)
-    #     L = self.compute_laplacian(graph)
-    #     L = - (L - torch.diag_embed(torch.diag(L)))
-    #
-    #     sim_matrix_exp = torch.exp(sim_matrix / temperature)
-    #     pos_sim = torch.diag(sim_matrix_exp)
-    #     # (P + L*M) / N
-    #     loss = (pos_sim + torch.sum(sim_matrix_exp * L, dim=-1)) / (torch.sum(sim_matrix_exp * mask , dim=-1))
-    #     loss = - torch.log(loss).mean()
-    #
-    #     return loss
+
 
 
 def clustering_loss(emb1, emb2, emb_fu, centers, alpha=1.0, device = torch.device('cuda')):
@@ -274,14 +226,10 @@ def clustering_loss(emb1, emb2, emb_fu, centers, alpha=1.0, device = torch.devic
     y_wave_2 = soft_assignment(emb2, centers, alpha=alpha)
     y_wave_fu = soft_assignment(emb_fu, centers, alpha=alpha)
     target_fu = target_distribution(y_wave_fu)
-    # target_1 = target_distribution(y_wave_1)
-    # target_2 = target_distribution(y_wave_2)
 
     loss_clustering = F.kl_div(y_wave_1.log(), target_fu, reduction='batchmean')
     loss_clustering += F.kl_div(y_wave_2.log(), target_fu, reduction='batchmean')
-    # loss_clustering += F.kl_div(y_wave_2.log(), target, reduction='batchmean')
-    # kl = torch.mul(target, torch.log(target / y_wave_1))
-    # loss_clustering = torch.sum(kl)
+
 
     return loss_clustering
 
@@ -301,18 +249,7 @@ def soft_assignment(inputs, centers, alpha=1.0):
     return q
 
 
-# def NCL_loss(sim_matrix, adj, tau = 0.1, device = torch.device('cuda:0')):
-#     # x_sim_matrix = cosine_sim(z1, z2, device)
-#     sim_inter_view = torch.exp(sim_matrix / tau)
-#     pos_sim = torch.diag(sim_inter_view)
-#     # (P + nu * M) / (N + M)
-#     loss_hsc = (pos_sim + torch.sum(sim_inter_view * adj, dim=-1)) / (torch.sum(sim_inter_view, dim=-1))
-#     # loss_hsc = (pos_sim) / (torch.sum(sim_inter_view, dim=-1))      # setting1
-#     # loss_hsc = (pos_sim + torch.sum(sim_inter_view * adj, dim=-1)) / (torch.sum(sim_inter_view, dim=-1))  # setting2
-#
-#     loss_hsc = - torch.log(loss_hsc).mean()
-#
-#     return loss_hsc
+
 
 def NCL_loss(sim_inter_matrix, z1, z2, adj, tau=0.1, device=torch.device('cuda:0')):
     sim_intra_z1 = torch.exp(cosine_sim(z1, z1, device) / tau)
@@ -368,8 +305,8 @@ def compute_knn(sim_matrix, n_neighbors=3, device=torch.device('cuda')):
 def compute_laplacian(adj, device):
     degree_arr = torch.sum(adj, dim=1)
     degree_arr = 1 / degree_arr.pow(0.5)
-    degree_matrx = torch.diag(degree_arr)
-    L = torch.eye(adj.size()[0]).to(device) - torch.mm(torch.mm(degree_matrx, adj), degree_matrx)
+    degree_matrix = torch.diag(degree_arr)
+    L = torch.eye(adj.size()[0]).to(device) - torch.mm(torch.mm(degree_matrix, adj), degree_matrix)
 
     return L
 
@@ -438,15 +375,3 @@ def compute_homo_ratio(edge_index, label):
     homo_info['ratio_list'] = ratio_list
 
     return homo_info
-
-# sim_mat_in = cosine_sim(q_instance, k_instance, device=device)
-# adj_in = compute_knn(sim_mat_in.detach().clone(), k=3, device=device)
-# loss_ncl = st_loss.NCL_loss(sim_mat_in, adj_in, device=device)
-#
-# sim_mat_clu = cosine_sim(q_cluster, k_cluster, device=device)
-# adj_clu = compute_knn(sim_mat_clu.detach().clone(), k=3, device=device)
-# loss_mse = st_loss.MSE_loss(sim_mat_clu, adj_clu)
-#
-# loss = loss_ncl + loss_mse
-# loss_instance_ += loss_ncl.item()
-# loss_cluster_ += loss_mse.item()

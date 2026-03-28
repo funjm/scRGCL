@@ -1,6 +1,6 @@
 import argparse
 
-parser = argparse.ArgumentParser(description='ScCCL', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser = argparse.ArgumentParser(description='ScRGCL', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
 parser.add_argument('--name', type=str, default='Quake_Smart-seq2_Trachea')
 parser.add_argument('--cuda', type=bool, default=True)

@@ -6,7 +6,7 @@ import time
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-import train2
+import train
 from utils import get_dataset, set_random_seed, DualLogger
 from opt import args, reset_args
 
@@ -49,7 +49,7 @@ def run_experiment(gene_exp, cluster_number, dataset, real_label, hyperparameter
     
     current_date = time.strftime("%Y%m%d%H")
     log_name = f"{dataset}_main_{current_date}"
-    results = train2.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
+    results = train.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
                             epochs=args.epoch, lr=args.lr, temperature=args.temperature,
                             dropout=args.dropout, layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
                             m=args.m, lambda_i=args.lambda_i, lambda_c=args.lambda_c, lambda_p=args.lambda_p,

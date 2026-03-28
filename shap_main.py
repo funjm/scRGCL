@@ -8,7 +8,7 @@ import torch
 # import opt
 from opt import args, reset_args, test_ablation
 import numpy as np
-import train2_shap
+import train
 import anndata as ad
 import scipy.io as sio
 from utils import get_dataset
@@ -70,7 +70,7 @@ if __name__ == "__main__":
     #                             dropout=args.dropout, layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
     #                             m=args.m, lambda_i=args.lambda_i, lambda_c=args.lambda_c, lambda_p=args.lambda_p, save_pred=True, noise=args.noise, logger=logger)
 
-    results = train2_shap.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
+    results = train.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
                             epochs=args.epoch, lr=args.lr, temperature=args.temperature,
                             dropout=args.dropout, layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
                             m=args.m, lambda_i=args.lambda_i, lambda_c=args.lambda_c, lambda_p=args.lambda_p,

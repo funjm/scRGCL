@@ -6,7 +6,7 @@ import torch
 # import opt
 from opt import args, reset_args, test_ablation
 import numpy as np
-import train2
+import train
 import anndata as ad
 import scipy.io as sio
 from utils import get_dataset, preprocess, preprocess_h5ad, get_logger, DualLogger,set_random_seed, show_heat_map
@@ -35,8 +35,6 @@ if __name__ == "__main__":
         # 在命令行终端运行，保持原有 argparse 传入的参数
         pass
 
-    
-    
     args.name = data_dict[args.dataid]
 
     reset_args(args)
@@ -68,18 +66,7 @@ if __name__ == "__main__":
     logger.write(f"Clustering Num is {cluster_number}")
 
     set_random_seed(args.seed)
-    # results = train1.run(gene_exp=gene_exp, cluster_number=cluster_number, dataset=args.name,
-    #                      real_label=real_label, epochs=args.epoch, lr=args.lr,
-    #                      temperature=args.temperature, dropout=args.dropout,
-    #                      layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim],
-    #                      save_pred=True, cluster_methods=args.cluster_methods, batch_size=args.batch_size,
-    #                      m=args.m, noise=args.noise, logger=logger)
-    # results = train1.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
-    #                             epochs=args.epoch, lr=args.lr, temperature=args.temperature,
-    #                             dropout=args.dropout, layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
-    #                             m=args.m, lambda_i=args.lambda_i, lambda_c=args.lambda_c, lambda_p=args.lambda_p, save_pred=True, noise=args.noise, logger=logger)
-
-    results = train2.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
+    results = train.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
                             epochs=args.epoch, lr=args.lr, temperature=args.temperature,
                             dropout=args.dropout, layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
                             m=args.m, lambda_i=args.lambda_i, lambda_c=args.lambda_c, lambda_p=args.lambda_p,

@@ -57,11 +57,11 @@ class MLP(nn.Module):
         return latent_out
 
 
-class ScCCL(nn.Module):
+class ScRGCL(nn.Module):
 
     def __init__(self, encoder_q, encoder_k, instance_projector, cluster_projector, class_num, ins_dim,
                  m=0.2):
-        super(ScCCL, self).__init__()
+        super(ScRGCL, self).__init__()
 
         self.cluster_num = class_num
         self.ins_dim = ins_dim
@@ -103,50 +103,3 @@ class ScCCL(nn.Module):
 
         return q_instance, q_cluster, k_instance, k_cluster
 
-
-class ScCCL_raw(nn.Module):
-
-    def __init__(self, encoder_q, encoder_k, instance_projector, cluster_projector, class_num, ins_dim,
-                 m=0.2):
-        super(ScCCL_raw, self).__init__()
-
-        self.cluster_num = class_num
-        self.ins_dim = ins_dim
-        self.m = m
-
-        self.encoder_q = encoder_q
-        self.encoder_k = encoder_k
-        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
-            param_k.data.copy_(param_q.data)
-            param_k.requires_grad = False
-
-        self.instance_projector = instance_projector
-
-        self.cluster_projector = nn.Sequential(
-            cluster_projector,
-            nn.Softmax(dim=1)
-        )
-
-        self.cluster_layer = nn.Parameter(torch.Tensor(self.cluster_num, self.ins_dim), requires_grad=True)
-        torch.nn.init.xavier_normal_(self.cluster_layer.data)
-
-    @torch.no_grad()
-    def _momentum_update_key_encoder(self):
-        for param_q, param_k in zip(self.encoder_q.parameters(), self.encoder_k.parameters()):
-            param_k.data = param_k.data * self.m + param_q.data * (1. - self.m)
-
-    def forward(self, cell_q, cell_k):
-        q = self.encoder_q(cell_q)
-        q_instance = F.normalize(self.instance_projector(q), dim=1)
-        q_cluster = self.cluster_projector(q)
-
-        if cell_k is None:
-            return q_instance, q_cluster, None, None
-
-        with torch.no_grad():
-            self._momentum_update_key_encoder()
-            k = self.encoder_k(cell_k)
-            k_instance = F.normalize(self.instance_projector(k), dim=1)
-            k_cluster = self.cluster_projector(k)
-
-        return q_instance, q_cluster, k_instance, k_cluster

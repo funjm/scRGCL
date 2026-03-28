@@ -3,8 +3,8 @@
 [![Static Badge](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
 
 ScRGCL is a self-supervised deep learning method for single-cell RNA-seq clustering. By integrating graph contrastive learning with momentum contrastive learning, ScRGCL learns discriminative cell embeddings without requiring labeled data. The model employs three complementary loss functions—instance-level, cluster-level, and prototype-level contrastive losses—to capture multi-scale similarity structures in single-cell expression data.
-![scRGCL architecture overview]<img width="11073" height="4551" alt="framework5" src="https://github.com/user-attachments/assets/e29a833a-485a-44d2-8f66-2048016ea6ac" />
 
+![scRGCL architecture overview](https://github.com/user-attachments/assets/e29a833a-485a-44d2-8f66-2048016ea6ac)
 
 ## Repository Structure
 ```bash

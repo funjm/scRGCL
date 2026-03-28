@@ -572,6 +572,9 @@ def umap_visual(data, title=None, save_path=None, label=None, asw_used=None):
     plt.grid(False)
     plt.show()
     if save_path is not None:
+        save_dir = os.path.dirname(save_path)
+        if save_dir and not os.path.exists(save_dir):
+            os.makedirs(save_dir, exist_ok=True)
         plt.savefig(save_path, bbox_inches='tight')
     else:
         plt.show()

@@ -1,14 +1,11 @@
 import os
 import time
-os.environ['CUDA_VISIBLE_DEVICES'] = '0'
-import h5py
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import torch
-# import opt
+
 from opt import args, reset_args, test_ablation
 import numpy as np
 import train
-import anndata as ad
-import scipy.io as sio
 from utils import get_dataset, preprocess, preprocess_h5ad, get_logger, DualLogger,set_random_seed, show_heat_map
 import warnings
 import sys

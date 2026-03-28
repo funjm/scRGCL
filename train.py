@@ -2,7 +2,6 @@ import os
 import ScRGCL
 import time
 import numpy as np
-import scipy.io as sio
 import torch
 import torch.nn.functional as F
 from sklearn.cluster import KMeans
@@ -11,8 +10,6 @@ import st_loss
 from st_loss import cosine_sim, compute_knn
 from clustering import clustering
 from evaluation import evaluate
-import shap
-import scipy.io as sio
 from utils import (get_device,
                    adjust_learning_rate,
                    save_model,

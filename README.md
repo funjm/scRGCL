@@ -1,5 +1,5 @@
 ## scRGCL: Neighbor-Aware Graph Contrastive Learning for Robust Single-Cell Clustering
-[![Static Badge](https://img.shields.io/badge/JOURNAL-bioinformatics-blue)](https://doi.org/10.1093/bioinformatics/btaf444)
+[![Static Badge](https://img.shields.io/badge/JOURNAL-bioRxiv-red)](https://doi.org/10.64898/2026.03.16.712039)
 [![Static Badge](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
 
 ScRGCL is a self-supervised deep learning method for single-cell RNA-seq clustering. By integrating graph contrastive learning with momentum contrastive learning, ScRGCL learns discriminative cell embeddings without requiring labeled data. The model employs three complementary loss functions representation graph contrastive, assignment graph contrastive, and cluster regularization losses to capture multi-scale similarity structures in single-cell expression data.

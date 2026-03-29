@@ -1,8 +1,8 @@
-## ScRGCL: Single-cell Graph Contrastive Learning for Clustering
+## scRGCL: Neighbor-Aware Graph Contrastive Learning for Robust Single-Cell Clustering
 [![Static Badge](https://img.shields.io/badge/JOURNAL-bioinformatics-blue)](https://doi.org/10.1093/bioinformatics/btaf444)
 [![Static Badge](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
 
-ScRGCL is a self-supervised deep learning method for single-cell RNA-seq clustering. By integrating graph contrastive learning with momentum contrastive learning, ScRGCL learns discriminative cell embeddings without requiring labeled data. The model employs three complementary loss functions—instance-level, cluster-level, and prototype-level contrastive losses—to capture multi-scale similarity structures in single-cell expression data.
+ScRGCL is a self-supervised deep learning method for single-cell RNA-seq clustering. By integrating graph contrastive learning with momentum contrastive learning, ScRGCL learns discriminative cell embeddings without requiring labeled data. The model employs three complementary loss functions representation graph contrastive, assignment graph contrastive, and cluster regularization losses to capture multi-scale similarity structures in single-cell expression data.
 
 ![scRGCL architecture overview](https://github.com/user-attachments/assets/e29a833a-485a-44d2-8f66-2048016ea6ac)
 
@@ -105,11 +105,14 @@ ScRGCL consists of three main components:
 If you find ScRGCL useful for your research, please cite:
 
 ```bibtex
-@article{scRGCL2024,
-  title={ScRGCL: A graph contrastive learning framework for single-cell RNA-seq clustering},
-  author={},
-  journal={Bioinformatics},
-  year={2024}
+@article{Fan2026scRGCL,
+  title   = {scRGCL: Neighbor-Aware Graph Contrastive Learning for Robust Single-Cell Clustering},
+  author  = {Fan, Junming and Liu, Fei and Lai, Xin},
+  journal = {bioRxiv},
+  year    = {2026},
+  doi     = {10.64898/2026.03.16.712039},
+  note    = {bioRxiv preprint},
+  url     = {https://doi.org/10.64898/2026.03.16.712039}
 }
 ```
 

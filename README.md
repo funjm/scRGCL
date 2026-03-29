@@ -107,7 +107,7 @@ If you find ScRGCL useful for your research, please cite:
 ```bibtex
 @article{Fan2026scRGCL,
   title   = {scRGCL: Neighbor-Aware Graph Contrastive Learning for Robust Single-Cell Clustering},
-  author  = {Fan, Junming and Liu, Fei and Lai, Xin},
+  author  = {Junming Fan, Fei Liu, Xin Lai},
   journal = {bioRxiv},
   year    = {2026},
   doi     = {10.64898/2026.03.16.712039},

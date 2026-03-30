@@ -67,7 +67,7 @@ python test.py --name Quake_Smart-seq2_Trachea
 
 You can also specify a custom model path:
 ```bash
-python test.py --name Quake_Smart-seq2_Trachea --model_path /path/to/model.pt
+python test.py --name Quake_Smart-seq2_Trachea 
 ```
 
 ### 4. Key hyperparameters

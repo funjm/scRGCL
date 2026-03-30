@@ -1,0 +1,27 @@
+# Core dependencies
+torch==2.11.0
+numpy==2.2.6
+scipy==1.15.3
+pandas==2.3.3
+scikit-learn==1.7.2
+
+# Single-cell analysis
+scanpy==1.11.5
+munkres==1.1.4
+umap-learn==0.5.11
+anndata==0.11.4
+h5py==3.16.0
+
+# Visualization
+matplotlib==3.10.8
+seaborn==0.13.2
+
+# Logging and monitoring
+tensorboard==2.20.0
+
+# Optional dependencies (uncomment if needed)
+# optuna==4.2.0  # For hyperparameter optimization
+# shap==0.46.0  # For model interpretation
+# torch==2.11.0+cu124  # GPU support: PyTorch with CUDA 12.4
+# torchvision==0.26.0+cu124
+# torchaudio==2.11.0+cu124

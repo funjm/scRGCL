@@ -100,17 +100,17 @@ runs/
 *.tfevents.*
 
 # Model weights / checkpoints
-# *.pth
-# *.pt  # Uncomment to ignore .pt files, kept for model sharing
-# *.pkl
-# *.onnx
-# *.ckpt
-# *.h5
-# *.pb
+*.pth
+*.pt
+*.pkl
+*.onnx
+*.ckpt
+*.h5
+*.pb
 checkpoint/
 checkpoints/
-# model/  # Uncomment to ignore model/ directory
-# models/  # Uncomment to ignore models/ directory
+model/
+models/
 
 # Data (uncomment if you really need to keep small samples)
 data/

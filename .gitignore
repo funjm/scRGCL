@@ -119,6 +119,7 @@ datasets/
 
 # Personal batch scripts
 z_*.bat
+zendo*.sh
 
 # Other large folders
 result/

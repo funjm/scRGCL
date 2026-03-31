@@ -35,7 +35,7 @@ merged_dataset=(
 echo "开始运行merged数据集..." | tee -a "$log_file"
 for dataset in "${merged_dataset[@]}"; do
     echo "正在运行数据集: $dataset " | tee -a "$log_file"
-    python main2.py --dataid "$dataset" 
+    python main.py --dataid "$dataset" 
     echo "----------------------------------------" | tee -a "$log_file"
 done
 

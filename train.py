@@ -39,7 +39,7 @@ def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, title=N
         perplexity=tsne_perplexity,        # 建议：调整为 50, 80 或 100。越大，簇分得越开，但也越慢。
         early_exaggeration=22,# 默认是12，如果觉得簇分得不够开，可以尝试改大到 20
         learning_rate='auto', # 自动学习率，通常效果最好
-        n_iter=1000,          # 迭代次数，确保收敛
+        # n_iter=1000,          # 迭代次数，确保收敛
         init='pca',           # 关键：使用 PCA 初始化，保持全局结构，避免“C型”扭曲
         random_state=42,
     )
@@ -109,9 +109,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
     instance_dim = layers[2] + layers[3]
     model = ScRGCL.ScRGCL(encoder_q, encoder_k, instance_projector, cluster_projector, cluster_number, instance_dim, m=m)
     data_aug_model.to(device)
-    print("timing")
     model.to(device)
-    print("timing")
     optimizer = torch.optim.Adam(filter(lambda p: p.requires_grad, model.parameters()), lr=lr)
 
     criterion_rgc = st_loss.RGCLoss(temperature=temperature, device=device)
@@ -289,7 +287,6 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                     'f1': f1,
                     'm': m,
                 }, save_path)
-                print(f"[Best Model] Saved to {save_path} (ARI: {ari:.4f})")
 
                 if save_fig_flag:
                     print("**********************save umap figure**********************")

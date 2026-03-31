@@ -193,14 +193,14 @@ class RGCLoss(nn.Module):
         topk_sim_matrix = self.compute_knn(sim_matrix.clone().detach(), n_neighbors)
         graph = topk_sim_matrix + kmeans_pseudo_adj
         # 保存邻居信息
-        if save_adj_flag == 1:  
+        # if save_adj_flag == 1:  
                           # 1
-            save_dir = os.path.join("adj", dataset_name)
-            os.makedirs(save_dir, exist_ok=True)
-            save_path = os.path.join(save_dir, f"{dataset_name}_topk_sim_matrix_epoch_{epoch}.npy")
+            # save_dir = os.path.join("adj", dataset_name)
+            # os.makedirs(save_dir, exist_ok=True)
+            # save_path = os.path.join(save_dir, f"{dataset_name}_topk_sim_matrix_epoch_{epoch}.npy")
             # np.save(save_path, topk_sim_matrix.cpu().numpy())
             
-            save_path = os.path.join(save_dir, f"{dataset_name}_kmeans_pseudo_adj_epoch_{epoch}.npy")
+            # save_path = os.path.join(save_dir, f"{dataset_name}_kmeans_pseudo_adj_epoch_{epoch}.npy")
             # np.save(save_path, kmeans_pseudo_adj.cpu().numpy())
             
 

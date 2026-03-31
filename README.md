@@ -1,8 +1,7 @@
-## ScRGCL: Single-cell Graph Contrastive Learning for Clustering
-[![Static Badge](https://img.shields.io/badge/JOURNAL-bioinformatics-blue)](https://doi.org/10.1093/bioinformatics/btaf444)
+## scRGCL: Neighbor-Aware Graph Contrastive Learning for Robust Single-Cell Clustering
 [![Static Badge](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
 
-ScRGCL is a self-supervised deep learning method for single-cell RNA-seq clustering. By integrating graph contrastive learning with momentum contrastive learning, ScRGCL learns discriminative cell embeddings without requiring labeled data. The model employs three complementary loss functions—instance-level, cluster-level, and prototype-level contrastive losses—to capture multi-scale similarity structures in single-cell expression data.
+scRGCL is a self-supervised deep learning method that learns a regularized representation guided by contrastive learning for single-cell clustering. Specifically, scRGCL captures the cell-type-associated expression structure by clustering similar cells together while ensuring consistency. For each sample, the model performs negative sampling by selecting cells from distinct clusters, thereby ensuring semantic dissimilarity between the target cell and its negative pairs. Moreover, scRGCL introduces a neighbor-aware re-weighting strategy that increases the contribution of samples from clusters closely related to the target, effectively preserving intra-cluster compactness.
 
 ![scRGCL architecture overview](https://github.com/user-attachments/assets/placeholder)
 
@@ -38,7 +37,7 @@ scRGCL/
 
 ### 1. Training on a single dataset
 ```bash
-python main.py --name Quake_Smart-seq2_Trachea --dataid 8
+python main.py --name Quake_Smart-seq2_Trachea
 ```
 
 ### 2. Available datasets
@@ -87,19 +86,6 @@ python test.py --name Quake_Smart-seq2_Trachea
 
 
 
-
-## Method Overview
-
-ScRGCL consists of three main components:
-
-1. **Momentum Contrastive Encoder**: Two encoders (query and key) with momentum update, where the key encoder is updated via exponential moving average of the query encoder.
-
-2. **Three-Pronged Contrastive Loss**:
-   - **Instance Loss**: Contrastive loss at the single-cell level
-   - **Cluster Loss**: Contrastive loss at the cluster level using pseudo-labels from k-means
-   - **Prototype Loss**: Prototype-based contrastive learning to refine cluster boundaries
-
-3. **High-Confidence Graph Construction**: Uses k-means pseudo-labels to construct a confidence-weighted adjacency matrix, which is combined with k-NN similarity graph for robust clustering.
 
 ## Citation
 If you find ScRGCL useful for your research, please cite:

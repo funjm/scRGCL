@@ -1,22 +1,23 @@
 import os
-import ScRGCL
 import time
 import numpy as np
 import torch
 import torch.nn.functional as F
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
-import st_loss
-from st_loss import cosine_sim, compute_knn
-from clustering import clustering
-from evaluation import evaluate
-from utils import (get_device,
-                   adjust_learning_rate,
-                   save_model,
-                   cluster_embedding,
-                   high_confidence_adj,
-                   evaluate_soft,
-                   plot_learning_curves)
+
+from src import ScRGCL
+from src import st_loss
+from src.st_loss import cosine_sim, compute_knn
+from src.clustering import clustering
+from src.evaluation import evaluate
+from src.utils import (get_device,
+                       adjust_learning_rate,
+                       save_model,
+                       cluster_embedding,
+                       high_confidence_adj,
+                       evaluate_soft,
+                       plot_learning_curves)
 import matplotlib.pyplot as plt
 from torch.utils.tensorboard import SummaryWriter
 
@@ -290,7 +291,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
 
                 if save_fig_flag:
                     print("**********************save umap figure**********************")
-                    import utils
+                    from src import utils
                     utils.umap_visual(features_np,
                         label = label_pred,
                         title='scRGCL pred label',
@@ -309,7 +310,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                 show_tsne(features_np, real_label, dataset, epoch + 1, tsne_perplexity=100, title='real_label', scores=[acc, nmi, ari, f1])
 
                 print("**********************save umap figure**********************")
-                import utils
+                from src import utils
                 utils.umap_visual(features_np, 
                     label = label_pred, 
                     title='scRGCL pred label', 

@@ -18,8 +18,8 @@ from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import h5py
 import anndata as ad
 import scipy.io as sio
-import pandas as pd 
-from opt import args
+import pandas as pd
+from config.opt import args
 
 import umap.umap_ as umap
 from sklearn.metrics import silhouette_score, adjusted_rand_score, normalized_mutual_info_score

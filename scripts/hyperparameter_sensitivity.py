@@ -6,9 +6,9 @@ import time
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
-import train
-from utils import get_dataset, set_random_seed, DualLogger
-from opt import args, reset_args
+from src import train
+from src.utils import get_dataset, set_random_seed, DualLogger
+from config.opt import args, reset_args
 
 def run_experiment(gene_exp, cluster_number, dataset, real_label, hyperparameter_name, hyperparameter_value, logger=None):
     """

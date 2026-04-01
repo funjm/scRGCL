@@ -6,13 +6,13 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '1'
 import h5py
 import torch
 # import opt
-from opt import args, reset_args, test_ablation
+from config.opt import args, reset_args, test_ablation
 import numpy as np
-import train
+from src import train
 import anndata as ad
 import scipy.io as sio
-from utils import get_dataset
-from utils import preprocess, preprocess_h5ad, get_logger, DualLogger,set_random_seed, show_heat_map
+from src.utils import get_dataset
+from src.utils import preprocess, preprocess_h5ad, get_logger, DualLogger, set_random_seed, show_heat_map
 import warnings
 warnings.simplefilter("ignore")
 

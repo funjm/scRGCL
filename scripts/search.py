@@ -1,10 +1,10 @@
 import optuna
-import train
-from opt import parser
-from utils import get_dataset
+from src import train as train1
+from config.opt import parser
+from src.utils import get_dataset
 import numpy as np
 import time
-from utils import preprocess, preprocess_h5ad, get_logger, DualLogger,set_random_seed, show_heat_map
+from src.utils import preprocess, preprocess_h5ad, get_logger, DualLogger, set_random_seed, show_heat_map
 import os
 import pandas as pd 
 

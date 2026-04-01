@@ -8,20 +8,28 @@ scRGCL is a self-supervised deep learning method that learns a regularized repre
 ## Repository Structure
 ```bash
 scRGCL/
-├── ScRGCL.py           # Core model definitions (encoder, projector, ScRGCL class)
-├── train.py            # Main training loop and evaluation
-├── clustering.py       # K-means clustering with cosine distance
-├── evaluation.py       # Clustering metrics (ACC, NMI, ARI, F1)
-├── st_loss.py          # Loss functions (RGCLoss, ClusterLoss, InstanceLoss, PrototypeLoss)
-├── utils.py            # Data preprocessing, utilities, visualization helpers
-├── opt.py              # Command-line argument parser and dataset-specific hyperparameters
-├── main.py             # Entry point for single-dataset experiments
-├── search.py           # Hyperparameter optimization with Optuna
-├── search_multi.py     # Multi-dataset hyperparameter search
-├── hyperparameter_sensitivity.py  # Parameter sensitivity analysis
-├── demo_test.py        # Demo/testing script
-├── test.py             # Load saved model and evaluate
-└── README.md
+├── README.md           # This file
+├── requirements.txt    # Python dependencies
+├── .gitignore
+├── src/                # Core library
+│   ├── __init__.py
+│   ├── ScRGCL.py       # Core model definitions (encoder, projector, ScRGCL class)
+│   ├── train.py        # Main training loop and evaluation
+│   ├── clustering.py    # K-means clustering with cosine distance
+│   ├── evaluation.py    # Clustering metrics (ACC, NMI, ARI, F1)
+│   ├── st_loss.py       # Loss functions (RGCLoss, ClusterLoss, InstanceLoss, PrototypeLoss)
+│   └── utils.py         # Data preprocessing, utilities, visualization helpers
+├── scripts/             # Executable scripts
+│   ├── __init__.py
+│   ├── main.py          # Entry point for single-dataset experiments
+│   ├── test.py          # Load saved model and evaluate
+│   ├── search.py        # Hyperparameter optimization with Optuna
+│   ├── search_multi.py  # Multi-dataset hyperparameter search
+│   ├── hyperparameter_sensitivity.py  # Parameter sensitivity analysis
+│   └── shap_main.py     # SHAP analysis script
+└── config/              # Configuration
+    ├── __init__.py
+    └── opt.py           # Command-line argument parser and dataset-specific hyperparameters
 ```
 
 ## Pre-requisites

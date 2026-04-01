@@ -1,12 +1,12 @@
 import multiprocessing as mp
-from opt import parser   # 你的参数解析器
+from config.opt import parser   # 你的参数解析器
 
-ALL_DATA = ['Klein','Baron3', 
+ALL_DATA = ['Klein','Baron3',
             'Quake_Smart-seq2_Limb_Muscle']
 
 def run_one(name):
     import subprocess, shlex
-    cmd = f'python search.py --name {name}'
+    cmd = f'python scripts/search.py --name {name}'
     subprocess.run(shlex.split(cmd))      # 阻塞直到跑完
 
 if __name__ == '__main__':

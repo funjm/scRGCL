@@ -3,10 +3,10 @@ import time
 # os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import torch
 
-from opt import args, reset_args, test_ablation
+from config.opt import args, reset_args, test_ablation
 import numpy as np
-import train
-from utils import get_dataset, preprocess, preprocess_h5ad, get_logger, DualLogger,set_random_seed, show_heat_map
+from src import train
+from src.utils import get_dataset, preprocess, preprocess_h5ad, get_logger, DualLogger, set_random_seed, show_heat_map
 import warnings
 import sys
 warnings.simplefilter("ignore")

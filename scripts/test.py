@@ -10,11 +10,11 @@ import numpy as np
 import torch
 import torch.nn.functional as F
 
-import ScRGCL
-import st_loss
-from clustering import clustering
-from evaluation import evaluate
-from utils import get_device, high_confidence_adj, get_dataset, set_random_seed
+from src import ScRGCL
+from src import st_loss
+from src.clustering import clustering
+from src.evaluation import evaluate
+from src.utils import get_device, high_confidence_adj, get_dataset, set_random_seed
 
 
 def load_model(model_path, device):

@@ -1,6 +1,6 @@
 import os
 import time
-# os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 import torch
 
 from config.opt import args, reset_args, test_ablation
@@ -72,8 +72,7 @@ if __name__ == "__main__":
     logger.write(f"============= {dataset}: RESULT =============")
     logger.write(f"\nargs.temperature = {args.temperature}\nargs.k = {args.k}\nargs.n_neighbors = {args.n_neighbors}\nargs.batch_size = {args.batch_size}\n\nargs.dropout = {args.dropout}\nargs.lambda_c = {args.lambda_c}\nargs.lambda_p = {args.lambda_p}\nargs.lr = {args.lr}\nargs.seed = {args.seed}\nargs.noise = {args.noise}\nargs.m = {args.m}\n")
 
-    logger.write(f"\nbest   {results['epochq']}" +
-                f"\nARI    {results['ariq']*100:.2f}" +
+    logger.write(f"\nARI    {results['ariq']*100:.2f}" +
                 f"\nNMI    {results['nmiq']*100:.2f}" +
                 f"\nACC    {results['accq']*100:.2f}" +
                  f"\nF1 {results['f1q']*100:.2f}"

@@ -34,7 +34,7 @@ merged_dataset = ["human_brain", "Klein", "filtered_mPCTC"]
 ca_datasets = ['small_size_4000_Data_Dong2020_Prostate', 'Data_He2021_Prostate', 'small_size_4000_Data_Song2022_Prostate', 'small_size_4000_Data_Chen2021_Prostate']
 
 # Dataset path is at the same level as scRGCL (../dataset)
-DATASET_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'dataset')
+DATASET_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'dataset')
 
 
 def get_dataset(dataset):

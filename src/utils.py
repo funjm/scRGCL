@@ -9,6 +9,8 @@ import math
 import random
 import os
 import sys
+import subprocess
+
 import time
 import logging
 from datetime import datetime
@@ -580,24 +582,93 @@ def umap_visual(data, title=None, save_path=None, label=None, asw_used=None):
         plt.show()
     plt.close()
 
+import subprocess
+def select_best_gpu(
+    min_free_memory_mb=1000,
+    set_visible_devices=True,
+    sample_times=5,
+    interval=1.0,
+):
+    """
+    查询当前所有 GPU 的使用情况，选择负载最小的一张 GPU。
 
+    选择规则：
+    - 连续采样多次，避免 GPU-Util 的瞬时波动影响判断
+    - 先过滤掉剩余显存小于 min_free_memory_mb 的 GPU
+    - 再根据“平均 GPU 利用率 + 显存占用率”的综合分数选最小值
 
-# # Print to terminal + save as log file
-# # log = DualLogger(root="./logs", filename="log.txt", show_time=True)
-# # Solely print to terminal
-# log = DualLogger(show_time=True)
-# log.write("BEGIN")                      # Automatic timestamp + line break
-# log.write("In Process ... ", end="")    # No wrap
-# log.write("Done")                       # Append the last line
-# log.write("Line 1\nLine 2")             # Multiple lines
-# log.write(" > 1", end='')
-# log.write(" > 2", end='')
-# log.write(" > 3", end='')
-# log.write(" > 4")
-# log.write("END")
-# # [2025-08-19 16:02:09] BEGIN
-# # [2025-08-19 16:02:09] In Process ... Done
-# # [2025-08-19 16:02:09] Line 1
-# # Line 2
-# # [2025-08-19 16:02:09]  > 1 > 2 > 3 > 4
-# # [2025-08-19 16:02:09] END
+    参数：
+        min_free_memory_mb: 最少需要的空闲显存，单位 MB
+        set_visible_devices: 是否自动设置环境变量 CUDA_VISIBLE_DEVICES
+        sample_times: 采样次数
+        interval: 每次采样之间的间隔时间，单位秒
+
+    返回：
+        best_gpu: 选中的 GPU 编号
+    """
+    cmd = [
+        "nvidia-smi",
+        "--query-gpu=index,utilization.gpu,memory.used,memory.total",
+        "--format=csv,noheader,nounits",
+    ]
+
+    gpu_records = {}
+
+    for sample_idx in range(sample_times):
+        # 调用 nvidia-smi 获取 GPU 信息
+        result = subprocess.check_output(cmd, encoding="utf-8")
+
+        for line in result.strip().split("\n"):
+            idx, util, mem_used, mem_total = [x.strip() for x in line.split(",")]
+
+            idx = int(idx)
+            util = float(util)
+            mem_used = float(mem_used)
+            mem_total = float(mem_total)
+
+            if idx not in gpu_records:
+                gpu_records[idx] = {
+                    "utils": [],
+                    "mem_used": mem_used,
+                    "mem_total": mem_total,
+                }
+
+            gpu_records[idx]["utils"].append(util)
+            # 显存使用取最近一次即可，因为通常比 util 更稳定
+            gpu_records[idx]["mem_used"] = mem_used
+            gpu_records[idx]["mem_total"] = mem_total
+
+        if sample_idx < sample_times - 1:
+            time.sleep(interval)
+
+    candidates = []
+    for idx, record in gpu_records.items():
+        avg_util = sum(record["utils"]) / len(record["utils"])
+        mem_used = record["mem_used"]
+        mem_total = record["mem_total"]
+        mem_free = mem_total - mem_used
+
+        # 如果空闲显存不足，直接跳过
+        if mem_free < min_free_memory_mb:
+            continue
+
+        # 显存占用率
+        mem_ratio = mem_used / mem_total if mem_total > 0 else 1.0
+
+        # 综合分数，越小表示当前越空闲
+        # 这里让显存占用率权重大一些，平均 GPU 利用率权重小一些
+        score = 0.2 * (avg_util / 100.0) + 0.8 * mem_ratio
+
+        candidates.append((idx, score, avg_util, mem_used, mem_total))
+
+    if not candidates:
+        raise RuntimeError("没有找到满足空闲显存要求的 GPU")
+
+    # 选择综合分数最低的 GPU
+    best_gpu, _, _, _, _ = min(candidates, key=lambda x: x[1])
+
+    # 如果需要，自动设置 CUDA_VISIBLE_DEVICES
+    if set_visible_devices:
+        os.environ["CUDA_VISIBLE_DEVICES"] = str(best_gpu)
+
+    return best_gpu

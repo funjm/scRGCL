@@ -1,17 +1,21 @@
 import os
 import time
-os.environ['CUDA_VISIBLE_DEVICES'] = '3'
+
 import torch
 
 from config.opt import args, reset_args, test_ablation
 import numpy as np
 from src import train
-from src.utils import get_dataset, preprocess, preprocess_h5ad, get_logger, DualLogger, set_random_seed, show_heat_map
+from src.utils import get_dataset, select_best_gpu, preprocess, preprocess_h5ad, get_logger, DualLogger, set_random_seed, show_heat_map
 import warnings
 import sys
 warnings.simplefilter("ignore")
 
 Tensor = torch.cuda.FloatTensor
+
+gpu_id = select_best_gpu()
+print(f"选择的 GPU 是: {gpu_id}")
+os.environ['CUDA_VISIBLE_DEVICES'] = str(gpu_id)
 
 
 if __name__ == "__main__":

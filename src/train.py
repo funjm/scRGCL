@@ -249,20 +249,10 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                     'm': m,
                 }, save_path)
 
-                if save_fig_flag:
-                    print("**********************save umap figure**********************")
-                    from src import utils
-                    utils.umap_visual(features_np,
-                        label = label_pred_aligned,
-                        title='scRGCL pred label',
-                        save_path = os.path.join(os.getcwd(), "umap_figure", dataset+"_pred_label.png"),
-                        asw_used=True)
 
-                    utils.umap_visual(features_np,
-                        label = real_label,
-                        title='scRGCL real label',
-                        save_path = os.path.join(os.getcwd(), "umap_figure", dataset+"_real_label.png"),
-                        asw_used=True)
+                show_tsne(features_np, label_pred_aligned, dataset, 999, tsne_perplexity=100, title='pred_label', scores=[acc, nmi, ari, f1])
+                show_tsne(features_np, real_label, dataset, 999, tsne_perplexity=100, title='real_label', scores=[acc, nmi, ari, f1])
+
             
             if epoch == epochs - 1 and save_fig_flag:
                 print("**********************save tsne figure**********************")

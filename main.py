@@ -29,12 +29,13 @@ if __name__ == "__main__":
     if "pydevd" in sys.modules or "debugpy" in sys.modules:
         # 在 IDE 调试器中运行
         args.dataid = 9
+        args.name = data_dict[args.dataid]
         # args.epoch = 200
     else:
         # 在命令行终端运行，保持原有 argparse 传入的参数
         pass
 
-    args.name = data_dict[args.dataid]
+
 
     reset_args(args)
     # args.epoch = 2000

@@ -16,6 +16,9 @@ import logging
 from datetime import datetime
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
+from sklearn.manifold import TSNE
+from scipy.optimize import linear_sum_assignment
+from sklearn.metrics import confusion_matrix
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
 import h5py
 import anndata as ad
@@ -26,6 +29,56 @@ from config.opt import args
 import umap.umap_ as umap
 from sklearn.metrics import silhouette_score, adjusted_rand_score, normalized_mutual_info_score
 import matplotlib.pyplot as plt
+
+def align_cluster_labels(y_true, y_pred):
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+
+    cm = confusion_matrix(y_true, y_pred)
+    row_ind, col_ind = linear_sum_assignment(-cm)
+    mapping = {pred: true for true, pred in zip(row_ind, col_ind)}
+
+    return np.array([mapping.get(label, label) for label in y_pred])
+
+
+def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, title=None, scores=None):
+    tsne = TSNE(
+        n_components=2,
+        perplexity=tsne_perplexity,
+        early_exaggeration=22,
+        learning_rate='auto',
+        init='pca',
+        random_state=42,
+    )
+    features_2d = tsne.fit_transform(features)
+
+    plt.figure(figsize=(6, 5))
+    unique_labels = np.unique(labels)
+    color_list = list(plt.cm.tab10.colors) + list(plt.cm.tab20.colors)
+    cmap = ListedColormap(color_list[:max(len(unique_labels), 1)])
+    scatter = plt.scatter(
+        features_2d[:, 0],
+        features_2d[:, 1],
+        c=labels,
+        cmap=cmap,
+        s=15,
+        vmin=np.min(unique_labels),
+        vmax=np.max(unique_labels) if len(unique_labels) > 1 else np.min(unique_labels) + 1,
+    )
+    plt.colorbar(scatter)
+    if scores is not None:
+        acc, nmi, ari, f1 = scores
+        plt.title(f"ari:{ari:.4f} nmi:{nmi:.4f}")
+    else:
+        plt.title(f"{dataset_name}")
+
+    save_dir = os.path.join("visualization", "figs", "tsne", dataset_name)
+    os.makedirs(save_dir, exist_ok=True)
+    save_path = os.path.join(save_dir, f"{dataset_name}_epoch{epoch}_perplexity{tsne_perplexity}_{title}.png")
+    plt.savefig(save_path, dpi=150, bbox_inches='tight')
+    plt.close()
+    print(f"[t-SNE] 图片已保存至 {save_path}")
+
 
 h5_datasets = []
 h5ad_datasets = ['Romanov', 'Pancreas_mouse', '10X_PBMC', 'Quake_10x_Bladder', 'Quake_10x_Spleen',

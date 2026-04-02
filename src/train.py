@@ -17,53 +17,12 @@ from src.utils import (get_device,
                        cluster_embedding,
                        high_confidence_adj,
                        evaluate_soft,
-                       plot_learning_curves)
-import matplotlib.pyplot as plt
+                       plot_learning_curves,
+                       show_tsne,
+                       align_cluster_labels)
 from torch.utils.tensorboard import SummaryWriter
 
-from sklearn.manifold import TSNE
 
-
-def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, title=None, scores=None):
-    """
-    绘制并保存 t-SNE 可视化图
-    :param features: 特征矩阵，shape=(n_samples, n_features)
-    :param labels: 真实标签或聚类标签，shape=(n_samples,)
-    :param dataset_name: 数据集名称，用于命名图片
-    :param epoch: 当前 epoch，用于命名图片
-    :param save_dir: 图片保存目录
-    """
-    # os.makedirs(save_dir, exist_ok=True)
-    # tsne = TSNE(n_components=2, random_state=42)
-    tsne = TSNE(
-        n_components=2, 
-        perplexity=tsne_perplexity,        # 建议：调整为 50, 80 或 100。越大，簇分得越开，但也越慢。
-        early_exaggeration=22,# 默认是12，如果觉得簇分得不够开，可以尝试改大到 20
-        learning_rate='auto', # 自动学习率，通常效果最好
-        # n_iter=1000,          # 迭代次数，确保收敛
-        init='pca',           # 关键：使用 PCA 初始化，保持全局结构，避免“C型”扭曲
-        random_state=42,
-    )
-    features_2d = tsne.fit_transform(features)
-
-    plt.figure(figsize=(6, 5))
-    scatter = plt.scatter(features_2d[:, 0], features_2d[:, 1], c=labels, cmap='tab10', s=15)
-    plt.colorbar(scatter)
-    # socre
-    if scores is not None:
-        acc, nmi, ari, f1 = scores
-        plt.title(f"ari:{ari:.4f} nmi:{nmi:.4f}")
-    else:
-        plt.title(f"{dataset_name}")
-
-    # Use relative path based on current working directory
-    save_dir = os.path.join("visualization", "figs", "tsne", dataset_name)
-    os.makedirs(save_dir, exist_ok=True)
-    save_path = os.path.join(save_dir, f"{dataset_name}_epoch{epoch}_perplexity{tsne_perplexity}_{title}.png")
-    # save_path = os.path.join(save_dir, "tmp-perplexity100")
-    plt.savefig(save_path, dpi=150, bbox_inches='tight')
-    plt.close()
-    print(f"[t-SNE] 图片已保存至 {save_path}")
 
 
 def run(gene_exp, cluster_number, dataset, real_label, epochs, lr, temperature, dropout, layers, batch_size, m,
@@ -240,6 +199,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                         )
             
             acc, nmi, ari, f1 = evaluate(y_true=real_label, y_pred=label_pred)
+            label_pred_aligned = align_cluster_labels(real_label, label_pred)
 
             # 记录TensorBoard标量：损失与指标（每个epoch）
             writer.add_scalar("Loss/total", loss_sum, epoch + 1)
@@ -260,7 +220,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
 
             if save_fig_flag and (epoch == 0 or (epoch + 1) % 200 == 0):
                 print("**********************save tsne figure**********************")
-                show_tsne(features_np, label_pred, dataset, epoch + 1, tsne_perplexity=100, title='pred_label', scores=[acc, nmi, ari, f1])
+                show_tsne(features_np, label_pred_aligned, dataset, epoch + 1, tsne_perplexity=100, title='pred_label', scores=[acc, nmi, ari, f1])
                 show_tsne(features_np, real_label, dataset, epoch + 1, tsne_perplexity=100, title='real_label', scores=[acc, nmi, ari, f1])
 
             if ari >= best_ari:
@@ -293,7 +253,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                     print("**********************save umap figure**********************")
                     from src import utils
                     utils.umap_visual(features_np,
-                        label = label_pred,
+                        label = label_pred_aligned,
                         title='scRGCL pred label',
                         save_path = os.path.join(os.getcwd(), "umap_figure", dataset+"_pred_label.png"),
                         asw_used=True)
@@ -306,13 +266,13 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
             
             if epoch == epochs - 1 and save_fig_flag:
                 print("**********************save tsne figure**********************")
-                show_tsne(features_np, label_pred, dataset, epoch + 1, tsne_perplexity=100, title='pred_label', scores=[acc, nmi, ari, f1])
+                show_tsne(features_np, label_pred_aligned, dataset, epoch + 1, tsne_perplexity=100, title='pred_label', scores=[acc, nmi, ari, f1])
                 show_tsne(features_np, real_label, dataset, epoch + 1, tsne_perplexity=100, title='real_label', scores=[acc, nmi, ari, f1])
 
                 print("**********************save umap figure**********************")
                 from src import utils
                 utils.umap_visual(features_np, 
-                    label = label_pred, 
+                    label = label_pred_aligned,
                     title='scRGCL pred label', 
                     save_path = os.path.join(os.getcwd(), "umap_figure", dataset+"_pred_label.png"),
                     asw_used=True)

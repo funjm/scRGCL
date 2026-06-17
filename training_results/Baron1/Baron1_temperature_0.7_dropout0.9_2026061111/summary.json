@@ -1,0 +1,39 @@
+{
+  "dataset": "Baron1",
+  "n_cells": 1937,
+  "n_input_features": 2000,
+  "n_label_classes": 14,
+  "args": {
+    "dataset": "Baron1",
+    "epochs": 400,
+    "lr": 0.003,
+    "temperature": 0.7,
+    "dropout": 0.9,
+    "dropout_weak": 0.9,
+    "dropout_strong": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 512,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.9,
+    "n_neighbors": 9,
+    "noise": 0.0,
+    "log_name": "Baron1_temperature_0.7_dropout0.9_2026061111"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 14,
+      "acc": 0.4579246257098606,
+      "nmi": 0.621193018182014,
+      "ari": 0.35768364353314724
+    }
+  ]
+}

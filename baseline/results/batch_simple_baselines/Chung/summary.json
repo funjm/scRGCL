@@ -1,0 +1,38 @@
+{
+  "dataset": "Chung",
+  "n_cells": 527,
+  "n_genes_after_preprocess": 2000,
+  "n_label_classes": 6,
+  "source_info": "feature_source=expr.npz, label_source=Cells.csv:labels",
+  "args": {
+    "dataset": "Chung",
+    "out_dir": "/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/batch_simple_baselines/Chung",
+    "n_pcs": 30,
+    "n_neighbors": 15,
+    "resolution": 0.9169925001442313,
+    "n_top_genes": 2000,
+    "target_sum": 10000.0,
+    "scale_max_value": 10.0,
+    "seed": 0
+  },
+  "results": [
+    {
+      "method": "PCA+Leiden",
+      "n_clusters": 11,
+      "ari": 0.17027379871020473,
+      "nmi": 0.44709934472622803
+    },
+    {
+      "method": "PCA+Louvain",
+      "n_clusters": 11,
+      "ari": 0.17329191780914055,
+      "nmi": 0.4441508292155517
+    },
+    {
+      "method": "PCA+KMeans",
+      "n_clusters": 6,
+      "ari": 0.4667113872041517,
+      "nmi": 0.5160070765416784
+    }
+  ]
+}

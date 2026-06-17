@@ -1,0 +1,38 @@
+{
+  "dataset": "Pollen",
+  "n_cells": 301,
+  "n_genes_after_preprocess": 2000,
+  "n_label_classes": 4,
+  "source_info": "feature_source=expr.npz, label_source=Cells.csv:labels",
+  "args": {
+    "dataset": "Pollen",
+    "out_dir": "/disk/fanjunming/home/workspace/bioinfo/baseline/results/pollen_simple_baselines",
+    "n_pcs": 30,
+    "n_neighbors": 15,
+    "resolution": 1.0,
+    "n_top_genes": 2000,
+    "target_sum": 10000.0,
+    "scale_max_value": 10.0,
+    "seed": 0
+  },
+  "results": [
+    {
+      "method": "PCA+Leiden",
+      "n_clusters": 10,
+      "ari": 0.4419147353864232,
+      "nmi": 0.7147122022270108
+    },
+    {
+      "method": "PCA+Louvain",
+      "n_clusters": 7,
+      "ari": 0.4844435297219998,
+      "nmi": 0.7082272954203404
+    },
+    {
+      "method": "PCA+KMeans",
+      "n_clusters": 4,
+      "ari": 0.6252345161856232,
+      "nmi": 0.7041796819241646
+    }
+  ]
+}

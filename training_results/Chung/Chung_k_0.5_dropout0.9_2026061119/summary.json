@@ -1,0 +1,39 @@
+{
+  "dataset": "Chung",
+  "n_cells": 527,
+  "n_input_features": 2000,
+  "n_label_classes": 6,
+  "args": {
+    "dataset": "Chung",
+    "epochs": 400,
+    "lr": 0.003,
+    "temperature": 0.5,
+    "dropout": 0.9,
+    "dropout_weak": 0.9,
+    "dropout_strong": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 512,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.5,
+    "n_neighbors": 9,
+    "noise": 0.0,
+    "log_name": "Chung_k_0.5_dropout0.9_2026061119"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 6,
+      "acc": 0.681214421252372,
+      "nmi": 0.42048644590872086,
+      "ari": 0.4893143275014813
+    }
+  ]
+}

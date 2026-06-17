@@ -1,0 +1,39 @@
+{
+  "dataset": "Muraro",
+  "n_cells": 2122,
+  "n_input_features": 2000,
+  "n_label_classes": 9,
+  "args": {
+    "dataset": "Muraro",
+    "epochs": 100,
+    "lr": 0.003,
+    "temperature": 0.3,
+    "dropout": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 1024,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.7,
+    "n_neighbors": 8,
+    "noise": 0.0,
+    "log_name": "Muraro_main_2026052211"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 9,
+      "acc": 0.9208294062205467,
+      "nmi": 0.8351465959091361,
+      "ari": 0.898438554235748,
+      "f1": 0.6996112030017468,
+      "epoch": 8
+    }
+  ]
+}

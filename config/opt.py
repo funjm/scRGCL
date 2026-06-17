@@ -2,13 +2,16 @@ import argparse
 
 parser = argparse.ArgumentParser(description='ScRGCL', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-parser.add_argument('--name', type=str, default='Quake_Smart-seq2_Trachea')
+parser.add_argument('--name', type=str, default='merged_annotated_cells', help='dataset name')
 parser.add_argument('--cuda', type=bool, default=True)
 parser.add_argument('--seed', type=int, default=100)
 parser.add_argument('--epoch', type=int, default=400)  # 200
 parser.add_argument('--select_gene', type=int, default=2000)  # 2000
-parser.add_argument('--batch_size', type=int, default=10000)
+parser.add_argument('--batch_size', type=int, default=512)
 parser.add_argument('--dropout', type=float, default=0.9)
+parser.add_argument('--dropout_weak', type=float, default=None)
+parser.add_argument('--dropout_strong', type=float, default=None)
+parser.add_argument('--dropout_equal', action='store_true', default=False, help='当扫描 dropout 时，让 dropout_weak 和 dropout_strong 相同')
 parser.add_argument('--lr', type=float, default=0.003)  # 0.2
 parser.add_argument('--m', type=float, default=0.5)
 parser.add_argument('--noise', type=float, default=0.0)
@@ -24,6 +27,7 @@ parser.add_argument('--cluster_methods', type=str, default="KMeans")
 parser.add_argument('--dataid', type=int, default=9)
 parser.add_argument('--n_neighbors', type=int, default=3)
 parser.add_argument('--k', type=float, default=0.5)
+parser.add_argument('--eval_on_cpu', action='store_true', help='Run evaluation phase on CPU to reduce GPU memory usage')
 parser.add_argument('--alpha', type=float, default=1.0)
 parser.add_argument('--test', type=int, default=0)
 # 灵敏度
@@ -152,6 +156,13 @@ def reset_args(args):
         args.batch_size = 1024    
     
         args.epoch = 100
+    elif args.name in ['merged_annotated_cells']:
+        args.eval_on_cpu = True
+
+        args.temperature = 0.5
+        args.k = 0.9
+        args.n_neighbors = 9
+        args.batch_size = 512
     print("after reset_args:\n", args)
 
 

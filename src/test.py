@@ -44,7 +44,7 @@ def load_model(model_path, device):
 
 def test_model(dataset, model_path=None, use_cpu=None, temperature=0.07, dropout=0.9,
                layers=None, cluster_number=None, m=0.5, k=0.5, n_neighbors=3,
-               seed=100):
+               seed=100, dropout_weak=None, dropout_strong=None):
     """
     Load a saved model and evaluate on the given dataset.
 
@@ -167,6 +167,8 @@ def main():
     parser.add_argument('--seed', type=int, default=100, help='Random seed')
     parser.add_argument('--temperature', type=float, default=0.07, help='Temperature')
     parser.add_argument('--dropout', type=float, default=0.9, help='Dropout rate')
+    parser.add_argument('--dropout_weak', type=float, default=None, help='Weak-view dropout rate')
+    parser.add_argument('--dropout_strong', type=float, default=None, help='Strong-view dropout rate')
     parser.add_argument('--m', type=float, default=0.5, help='Momentum coefficient')
     parser.add_argument('--k', type=float, default=0.5, help='High-confidence threshold')
     parser.add_argument('--n_neighbors', type=int, default=3, help='Number of neighbors')
@@ -180,6 +182,8 @@ def main():
         use_cpu=not args.cuda,
         temperature=args.temperature,
         dropout=args.dropout,
+        dropout_weak=args.dropout_weak,
+        dropout_strong=args.dropout_strong,
         m=args.m,
         k=args.k,
         n_neighbors=args.n_neighbors,

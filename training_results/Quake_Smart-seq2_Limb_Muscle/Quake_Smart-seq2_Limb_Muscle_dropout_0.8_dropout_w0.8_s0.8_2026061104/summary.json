@@ -1,0 +1,39 @@
+{
+  "dataset": "Quake_Smart-seq2_Limb_Muscle",
+  "n_cells": 1090,
+  "n_input_features": 2000,
+  "n_label_classes": 6,
+  "args": {
+    "dataset": "Quake_Smart-seq2_Limb_Muscle",
+    "epochs": 400,
+    "lr": 0.003,
+    "temperature": 0.5,
+    "dropout": 0.8,
+    "dropout_weak": 0.8,
+    "dropout_strong": 0.8,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 512,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.9,
+    "n_neighbors": 9,
+    "noise": 0.0,
+    "log_name": "Quake_Smart-seq2_Limb_Muscle_dropout_0.8_dropout_w0.8_s0.8_2026061104"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 6,
+      "acc": 0.7779816513761468,
+      "nmi": 0.7382373848550507,
+      "ari": 0.7105037386798809
+    }
+  ]
+}

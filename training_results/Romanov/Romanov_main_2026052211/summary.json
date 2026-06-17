@@ -1,0 +1,39 @@
+{
+  "dataset": "Romanov",
+  "n_cells": 2881,
+  "n_input_features": 2000,
+  "n_label_classes": 7,
+  "args": {
+    "dataset": "Romanov",
+    "epochs": 400,
+    "lr": 0.003,
+    "temperature": 0.2,
+    "dropout": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 1500,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.8,
+    "n_neighbors": 5,
+    "noise": 0.0,
+    "log_name": "Romanov_main_2026052211"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 7,
+      "acc": 0.8278375564040263,
+      "nmi": 0.6917223908556275,
+      "ari": 0.7847272816009123,
+      "f1": 0.6115842046565595,
+      "epoch": 19
+    }
+  ]
+}

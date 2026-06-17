@@ -1,0 +1,39 @@
+{
+  "dataset": "Quake_Smart-seq2_Diaphragm",
+  "n_cells": 870,
+  "n_input_features": 2000,
+  "n_label_classes": 5,
+  "args": {
+    "dataset": "Quake_Smart-seq2_Diaphragm",
+    "epochs": 200,
+    "lr": 0.003,
+    "temperature": 0.2,
+    "dropout": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 256,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.9,
+    "n_neighbors": 7,
+    "noise": 0.0,
+    "log_name": "Quake_Smart-seq2_Diaphragm_main_2026052211"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 5,
+      "acc": 0.8333333333333334,
+      "nmi": 0.8243446478143273,
+      "ari": 0.7444308402687876,
+      "f1": 0.7288501865413887,
+      "epoch": 17
+    }
+  ]
+}

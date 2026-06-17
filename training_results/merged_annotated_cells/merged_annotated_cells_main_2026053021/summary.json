@@ -1,0 +1,37 @@
+{
+  "dataset": "merged_annotated_cells",
+  "n_cells": 55656,
+  "n_input_features": 2000,
+  "n_label_classes": 80,
+  "args": {
+    "dataset": "merged_annotated_cells",
+    "epochs": 400,
+    "lr": 0.003,
+    "temperature": 0.07,
+    "dropout": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 512,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.5,
+    "n_neighbors": 3,
+    "noise": 0.0,
+    "log_name": "merged_annotated_cells_main_2026053021"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 80,
+      "acc": 0.3798332614632744,
+      "nmi": 0.737464503429216,
+      "ari": 0.25796526665403613
+    }
+  ]
+}

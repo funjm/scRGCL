@@ -1,0 +1,38 @@
+{
+  "dataset": "Quake_Smart-seq2_Limb_Muscle",
+  "n_cells": 1090,
+  "n_genes_after_preprocess": 2000,
+  "n_label_classes": 6,
+  "source_info": "feature_source=expr.npz, label_source=Cells.csv:labels",
+  "args": {
+    "dataset": "Quake_Smart-seq2_Limb_Muscle",
+    "out_dir": "/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/batch_simple_baselines/Quake_Smart-seq2_Limb_Muscle",
+    "n_pcs": 30,
+    "n_neighbors": 15,
+    "resolution": 0.9169925001442313,
+    "n_top_genes": 2000,
+    "target_sum": 10000.0,
+    "scale_max_value": 10.0,
+    "seed": 0
+  },
+  "results": [
+    {
+      "method": "PCA+Leiden",
+      "n_clusters": 9,
+      "ari": 0.51546429309901,
+      "nmi": 0.77812736747352
+    },
+    {
+      "method": "PCA+Louvain",
+      "n_clusters": 9,
+      "ari": 0.5204535253007532,
+      "nmi": 0.7798106269902754
+    },
+    {
+      "method": "PCA+KMeans",
+      "n_clusters": 6,
+      "ari": 0.9684317235646978,
+      "nmi": 0.9535974583122699
+    }
+  ]
+}

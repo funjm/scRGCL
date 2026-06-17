@@ -1,0 +1,38 @@
+{
+  "dataset": "Muraro",
+  "n_cells": 2122,
+  "n_genes_after_preprocess": 2000,
+  "n_label_classes": 9,
+  "source_info": "feature_source=expr.npz, label_source=Cells.csv:labels",
+  "args": {
+    "dataset": "Muraro",
+    "out_dir": "/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/batch_simple_baselines/Muraro",
+    "n_pcs": 30,
+    "n_neighbors": 15,
+    "resolution": 1.0339850002884625,
+    "n_top_genes": 2000,
+    "target_sum": 10000.0,
+    "scale_max_value": 10.0,
+    "seed": 0
+  },
+  "results": [
+    {
+      "method": "PCA+Leiden",
+      "n_clusters": 15,
+      "ari": 0.5857191144859237,
+      "nmi": 0.7588386285689298
+    },
+    {
+      "method": "PCA+Louvain",
+      "n_clusters": 15,
+      "ari": 0.48012939532951354,
+      "nmi": 0.7388894397628474
+    },
+    {
+      "method": "PCA+KMeans",
+      "n_clusters": 9,
+      "ari": 0.9058465458930436,
+      "nmi": 0.8616248019906864
+    }
+  ]
+}

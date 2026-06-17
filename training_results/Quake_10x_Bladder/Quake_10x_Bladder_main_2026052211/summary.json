@@ -1,0 +1,37 @@
+{
+  "dataset": "Quake_10x_Bladder",
+  "n_cells": 2500,
+  "n_input_features": 2000,
+  "n_label_classes": 4,
+  "args": {
+    "dataset": "Quake_10x_Bladder",
+    "epochs": 260,
+    "lr": 0.003,
+    "temperature": 0.2,
+    "dropout": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 1024,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.6,
+    "n_neighbors": 6,
+    "noise": 0.0,
+    "log_name": "Quake_10x_Bladder_main_2026052211"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 4,
+      "acc": 0.9692,
+      "nmi": 0.9468685417898888,
+      "ari": 0.9806684312379592
+    }
+  ]
+}

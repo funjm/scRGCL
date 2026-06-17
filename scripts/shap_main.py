@@ -46,7 +46,7 @@ if __name__ == "__main__":
         logger.write(f"{arg:>15}: {value}")
 
     logger.write(f"============= {dataset} =============")
-    logger.write(f"\nargs.temperature = {args.temperature}\nargs.k = {args.k}\nargs.n_neighbors = {args.n_neighbors}\nargs.batch_size = {args.batch_size}\n\nargs.dropout = {args.dropout}\nargs.lambda_c = {args.lambda_c}\nargs.lambda_p = {args.lambda_p}\nargs.lr = {args.lr}\nargs.seed = {args.seed}\nargs.noise = {args.noise}\nargs.m = {args.m}\n")
+    logger.write(f"\nargs.temperature = {args.temperature}\nargs.k = {args.k}\nargs.n_neighbors = {args.n_neighbors}\nargs.batch_size = {args.batch_size}\n\nargs.dropout = {args.dropout}\nargs.dropout_weak = {args.dropout_weak}\nargs.dropout_strong = {args.dropout_strong}\nargs.lambda_c = {args.lambda_c}\nargs.lambda_p = {args.lambda_p}\nargs.lr = {args.lr}\nargs.seed = {args.seed}\nargs.noise = {args.noise}\nargs.m = {args.m}\n")
     gene_exp, real_label = get_dataset(args.name)
 
 
@@ -70,7 +70,9 @@ if __name__ == "__main__":
 
     results = train.train_model(gene_exp=gene_exp, cluster_number=cluster_number, real_label=real_label,
                             epochs=args.epoch, lr=args.lr, temperature=args.temperature,
-                            dropout=args.dropout, layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
+                            dropout=args.dropout, dropout_weak=args.dropout_weak,
+                            dropout_strong=args.dropout_strong,
+                            layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
                             m=args.m, lambda_i=args.lambda_i, lambda_c=args.lambda_c, lambda_p=args.lambda_p,
                             k=args.k, n_neighbors=args.n_neighbors, save_pred=True, noise=args.noise, logger=logger, dataset=args.name,
                             save_fig_flag=False, log_name=log_name)

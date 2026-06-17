@@ -1,0 +1,2 @@
+method,n_clusters,acc,nmi,ari
+scRGCL,4,0.8384,0.7792344935350267,0.7621721959191922

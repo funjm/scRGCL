@@ -1,0 +1,38 @@
+{
+  "dataset": "merged_annotated_cells",
+  "n_cells": 55656,
+  "n_genes_after_preprocess": 2000,
+  "n_label_classes": 55,
+  "source_info": "feature_source=matrix.mtx, label_source=cell_metadata.csv:free_annotation",
+  "args": {
+    "dataset": "merged_annotated_cells",
+    "out_dir": "/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/batch_simple_baselines/merged_annotated_cells",
+    "n_pcs": 30,
+    "n_neighbors": 15,
+    "resolution": 1.556271942704932,
+    "n_top_genes": 2000,
+    "target_sum": 10000.0,
+    "scale_max_value": 10.0,
+    "seed": 0
+  },
+  "results": [
+    {
+      "method": "PCA+Leiden",
+      "n_clusters": 57,
+      "ari": 0.17152679402647034,
+      "nmi": 0.6472035840827192
+    },
+    {
+      "method": "PCA+Louvain",
+      "n_clusters": 54,
+      "ari": 0.1717088677762149,
+      "nmi": 0.6492955649862648
+    },
+    {
+      "method": "PCA+KMeans",
+      "n_clusters": 55,
+      "ari": 0.2541900136130733,
+      "nmi": 0.6519706959236717
+    }
+  ]
+}

@@ -1,0 +1,37 @@
+{
+  "dataset": "Pollen",
+  "n_cells": 301,
+  "n_input_features": 2000,
+  "n_label_classes": 4,
+  "args": {
+    "dataset": "Pollen",
+    "epochs": 400,
+    "lr": 0.003,
+    "temperature": 0.5,
+    "dropout": 0.9,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 512,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.9,
+    "n_neighbors": 9,
+    "noise": 0.0,
+    "log_name": "Pollen_main_2026060514"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 4,
+      "acc": 0.8471760797342193,
+      "nmi": 0.8579984737404913,
+      "ari": 0.8137423030872836
+    }
+  ]
+}

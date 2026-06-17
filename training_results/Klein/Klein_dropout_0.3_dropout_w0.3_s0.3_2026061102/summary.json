@@ -1,0 +1,39 @@
+{
+  "dataset": "Klein",
+  "n_cells": 2717,
+  "n_input_features": 2000,
+  "n_label_classes": 4,
+  "args": {
+    "dataset": "Klein",
+    "epochs": 400,
+    "lr": 0.003,
+    "temperature": 0.5,
+    "dropout": 0.3,
+    "dropout_weak": 0.3,
+    "dropout_strong": 0.3,
+    "layers": [
+      200,
+      40,
+      60,
+      40
+    ],
+    "batch_size": 512,
+    "m": 0.5,
+    "lambda_i": 1.0,
+    "lambda_c": 1.0,
+    "lambda_p": 1.0,
+    "k": 0.9,
+    "n_neighbors": 9,
+    "noise": 0.0,
+    "log_name": "Klein_dropout_0.3_dropout_w0.3_s0.3_2026061102"
+  },
+  "results": [
+    {
+      "method": "scRGCL",
+      "n_clusters": 4,
+      "acc": 0.9116672800883328,
+      "nmi": 0.7730005739259828,
+      "ari": 0.8143485524055899
+    }
+  ]
+}

@@ -24,7 +24,7 @@ import h5py
 import anndata as ad
 import scipy.io as sio
 import pandas as pd
-from config.opt import args
+
 
 import umap.umap_ as umap
 from sklearn.metrics import silhouette_score, adjusted_rand_score, normalized_mutual_info_score
@@ -42,6 +42,20 @@ def align_cluster_labels(y_true, y_pred):
 
 
 def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, title=None, scores=None):
+    """
+    Generate and save a t-SNE visualization of feature embeddings.
+
+    Parameters
+    - features: Feature matrix to project to 2D.
+    - labels: Labels used to color points.
+    - dataset_name: Dataset name used in the output directory and filename.
+    - epoch: Epoch identifier used in the output filename.
+    - tsne_perplexity: Perplexity used by t-SNE.
+    - title: Optional suffix used in the output filename.
+    - scores: Optional [acc, nmi, ari, f1] values used in the plot title.
+
+    The figure is saved under visualization/figs/tsne/<dataset_name>/.
+    """
     tsne = TSNE(
         n_components=2,
         perplexity=tsne_perplexity,
@@ -80,20 +94,118 @@ def show_tsne(features, labels, dataset_name, epoch, tsne_perplexity=30, title=N
     print(f"[t-SNE] 图片已保存至 {save_path}")
 
 
-h5_datasets = []
-h5ad_datasets = ['Romanov', 'Pancreas_mouse', '10X_PBMC', 'Quake_10x_Bladder', 'Quake_10x_Spleen',
-                 "Quake_Smart-seq2_Lung", "Quake_Smart-seq2_Diaphragm", "Quake_Smart-seq2_Trachea",
-                 'Quake_Smart-seq2_Limb_Muscle', 'Quake_10x_Limb_Muscle']
-ziscDesk_datasets = ['Muraro', 'Pollen', 'Adam', 'Baron1', 'Baron2', 'Baron3', 'Baron4', 'Baron_mouse1', 'Chung']
-merged_dataset = ["human_brain", "Klein", "filtered_mPCTC"]
+h5_datasets = h5ad_datasets = []
+# h5ad_datasets = ['Romanov', 'Pancreas_mouse', '10X_PBMC', 'Quake_10x_Bladder', 'Quake_10x_Spleen',
+#                  "Quake_Smart-seq2_Lung", "Quake_Smart-seq2_Diaphragm", "Quake_Smart-seq2_Trachea",
+#                  'Quake_Smart-seq2_Limb_Muscle', 'Quake_10x_Limb_Muscle']
+ziscDesk_datasets = ['Muraro', 'Pollen', 'Adam', 'Baron1', 'Baron2', 'Baron3', 'Baron4', 'Baron_mouse1', "Klein", 'Chung' , "Romanov", "Quake_10x_Bladder", "Quake_10x_Limb_Muscle", "Quake_10x_Spleen", "Quake_Smart-seq2_Diaphragm", "Quake_Smart-seq2_Limb_Muscle", "Quake_Smart-seq2_Trachea"]
+merged_dataset = ["human_brain", "filtered_mPCTC"]
 ca_datasets = ['small_size_4000_Data_Dong2020_Prostate', 'Data_He2021_Prostate', 'small_size_4000_Data_Song2022_Prostate', 'small_size_4000_Data_Chen2021_Prostate']
+
 
 # Dataset path is at the same level as scRGCL (../dataset)
 DATASET_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), 'dataset')
 
 
 def get_dataset(dataset):
+    from config.opt import args
     path = DATASET_PATH
+    
+    # dataset_path = os.path.expanduser(dataset)
+    
+    dataset_path = os.path.join(DATASET_PATH, 'large_dataset', dataset)
+    if os.path.exists(dataset_path):
+        if os.path.isdir(dataset_path):
+            matrix_path = os.path.join(dataset_path, 'matrix.mtx')
+            if not os.path.exists(matrix_path):
+                raise FileNotFoundError(f"Cannot find matrix.mtx in directory {dataset_path}")
+
+            adata = sc.read_mtx(matrix_path)
+            genes_path = os.path.join(dataset_path, 'genes.tsv')
+            cells_path = os.path.join(dataset_path, 'cells.tsv')
+            metadata_path = os.path.join(dataset_path, 'cell_metadata.csv')
+
+            if os.path.exists(genes_path):
+                genes = pd.read_csv(genes_path, header=None, sep='\t')
+            else:
+                genes = None
+            if os.path.exists(cells_path):
+                cells = pd.read_csv(cells_path, header=None, sep='\t')
+            else:
+                cells = None
+            if os.path.exists(metadata_path):
+                meta = pd.read_csv(metadata_path)
+            else:
+                meta = None
+
+            if genes is not None and cells is not None:
+                if adata.X.shape[0] == genes.shape[0] and adata.X.shape[1] == cells.shape[0]:
+                    adata = sc.AnnData(adata.X.T)
+                    adata.var_names = genes[0].astype(str).values
+                    adata.obs_names = cells[0].astype(str).values
+                elif adata.X.shape[0] == cells.shape[0] and adata.X.shape[1] == genes.shape[0]:
+                    adata = sc.AnnData(adata.X)
+                    adata.var_names = genes[0].astype(str).values
+                    adata.obs_names = cells[0].astype(str).values
+                else:
+                    raise ValueError(
+                        f"Matrix dimensions {adata.X.shape} do not match genes ({None if genes is None else genes.shape}) "
+                        f"and cells ({None if cells is None else cells.shape})")
+            elif adata.X.shape[0] == adata.X.shape[1]:
+                adata = sc.AnnData(adata.X)
+            else:
+                raise ValueError(f"Cannot infer orientation for matrix in {dataset_path}")
+
+            if meta is not None:
+                if 'free_annotation' in meta.columns and meta['free_annotation'].notna().any():
+                    real_label = meta['free_annotation'].fillna(meta.get('cell_ontology_class', '')).astype(str).to_numpy()
+                elif 'cell_ontology_class' in meta.columns:
+                    real_label = meta['cell_ontology_class'].astype(str).to_numpy()
+                elif 'cluster.ids' in meta.columns:
+                    real_label = meta['cluster.ids'].astype(str).to_numpy()
+                else:
+                    raise ValueError(f"No usable label column found in {metadata_path}")
+            else:
+                raise ValueError(f"Missing metadata file for labels in {dataset_path}")
+            unique_classes, real_label_int = np.unique(real_label, return_inverse=True)
+            real_label = real_label_int
+            if adata.X.shape[0] != len(real_label):
+                raise ValueError(
+                    f"Number of cells in matrix ({adata.X.shape[0]}) does not match labels ({len(real_label)})")
+
+            adata = counts_normalize(adata,
+                                       copy=True,
+                                       highly_genes=args.select_gene,
+                                       size_factors=True,
+                                       normalize_input=True,
+                                       logtrans_input=True)
+            gene_exp = np.asarray(adata.X).astype(np.float32)
+            return gene_exp, real_label
+        elif os.path.isfile(dataset_path):
+            dataset = dataset_path
+            file_ext = os.path.splitext(dataset_path)[1].lower()
+            if file_ext == '.h5ad':
+                adata = ad.read_h5ad(dataset_path)
+                if 'cell_type1' in adata.obs.columns:
+                    celltype = adata.obs['cell_type1']
+                else:
+                    celltype = adata.obs.get('celltype', None)
+                if celltype is None:
+                    raise ValueError(f"No cell type annotation found in {dataset_path}")
+                if 'cell_type1' in adata.obs.columns:
+                    real_label = celltype.values.codes
+                else:
+                    real_label = celltype.values
+                gene_exp = preprocess_h5ad(adata, args.select_gene)
+                return gene_exp, real_label
+            elif file_ext == '.mat':
+                mat_data = sio.loadmat(dataset_path)
+                gene_exp = mat_data['fea']
+                real_label = mat_data['label'].ravel()
+                gene_exp = preprocess(gene_exp, args.select_gene)
+                return gene_exp, real_label
+            else:
+                raise ValueError(f"Unsupported dataset file type: {dataset_path}")
 
     if dataset in h5_datasets:
         data_h5 = h5py.File(f"{path}/h5ad_datasets/{args.name}.h5ad", 'r')
@@ -122,7 +234,8 @@ def get_dataset(dataset):
         ziscDesk_base = os.path.join(DATASET_PATH, 'ziscDesk-single-cell-data-20241011T104023Z-001', 'ziscDesk-single-cell-data')
 
         gene_exp = np.load(os.path.join(ziscDesk_base, dataset, 'expr.npz'))['arr_0']
-        real_label = pd.read_csv(os.path.join(ziscDesk_base, dataset, 'Cells.csv'), index_col=0)['labels'].to_numpy()
+        df = pd.read_csv(os.path.join(ziscDesk_base, dataset, 'Cells.csv'), index_col=0)
+        real_label = df['labels'].to_numpy()
         if gene_exp.shape[0] != len(real_label):
             gene_exp = gene_exp.T
         gene_exp = preprocess(gene_exp, args.select_gene)
@@ -137,6 +250,33 @@ def get_dataset(dataset):
 
     return gene_exp, real_label
 
+
+def get_ground_truth_labels(dataset):
+    ziscDesk_base = os.path.join(DATASET_PATH, 'ziscDesk-single-cell-data-20241011T104023Z-001', 'ziscDesk-single-cell-data')
+
+    df = pd.read_csv(os.path.join(ziscDesk_base, dataset, 'Cells.csv'), index_col=0)
+    
+    # ======================Chung
+    Chung_dir = '/disk/fanjunming/home/workspace/bioinfo/dataset/ziscDesk-single-cell-data-20241011T104023Z-001/ziscDesk-single-cell-data/Chung'
+    Chung_cell_df = pd.read_csv(os.path.join(Chung_dir, f"GSE75688_final_sample_information.txt"), sep='\t')
+    Chung_gene_exp_df = pd.read_csv(os.path.join(Chung_dir, f"GSE75688_GEO_processed_Breast_Cancer_raw_TPM_matrix.txt"), sep='\t')
+    # 本来是gene x cell，需要转置为cell x gene，并将gene_id设置为索引
+    Chung_gene_exp_df = Chung_gene_exp_df.T
+
+    info_cells = set(Chung_cell_df['sample'])
+    expr_cells = set(Chung_gene_exp_df['gene_id'])
+
+
+    # 假设 tmp_df 的索引是 cell_id，assigned_cluster 是细胞类别
+    cell_type_mapping = tmp_df[['assigned_cluster']].reset_index()
+    # 将索引列重命名为与 target_df 一致的 'cell_id'
+    cell_type_mapping.rename(columns={'assigned_cluster': 'cell_type'}, inplace=True) 
+    cell_type_mapping['labels'], _ = pd.factorize(cell_type_mapping['cell_type'])
+
+    
+
+
+    return df
 
 def preprocess(gene_exp, select_genes):
     X = np.ceil(gene_exp).astype(np.float64)
@@ -193,7 +333,10 @@ def counts_normalize(adata, copy=True, highly_genes=None, filter_min_counts=True
     norm_error = 'Make sure that the dataset (adata.X) contains unnormalized count data.'
     assert 'n_count' not in adata.obs, norm_error
 
-    adata.X = np.clip(adata.X, 0, None)  # 将负值裁剪为 0
+    if sp.sparse.issparse(adata.X):
+        adata.X.data = np.clip(adata.X.data, 0, None)
+    else:
+        adata.X = np.clip(adata.X, 0, None)
     
     if adata.X.size < 50e6:
         if sp.sparse.issparse(adata.X):
@@ -229,8 +372,8 @@ def counts_normalize(adata, copy=True, highly_genes=None, filter_min_counts=True
 
 
 def get_device(use_cpu):
-    if use_cpu is None:
-        if os.environ.get('CUDA_VISIBLE_DEVICES', '') == '' or not torch.cuda.is_available():
+    if not use_cpu:
+        if os.environ.get('CUDA_VISIBLE_DEVICES', '') == '' and not torch.cuda.is_available():
             device = torch.device('cpu')
         else:
             device = torch.device('cuda')
@@ -343,18 +486,18 @@ def pseudo_graph(label_pred, device):
     # 根据伪标签生成邻居矩阵
     # 统一数据类型为PyTorch张量，并迁移到指定设备（如GPU）
     if isinstance(label_pred, torch.Tensor):
-        pseudo_label = label_pred.clone().to(device)
+        pseudo_label = label_pred.clone()
     elif isinstance(label_pred, np.ndarray):
-        pseudo_label = torch.tensor(label_pred.copy()).to(device)
+        pseudo_label = torch.tensor(label_pred.copy())
         
     # 构建伪标签邻接矩阵：相同标签的节点间有边（值为1），不同标签为0
     # pseudo_label.unsqueeze(1)将形状从(n,)变为(n,1)，通过广播与原张量比较，得到(n,n)的布尔矩阵
-    pseudo_g = (pseudo_label == pseudo_label.unsqueeze(1)).float().to(device)
+    pseudo_g = (pseudo_label == pseudo_label.unsqueeze(1)).float()
     # 移除自环（对角线元素设为0）
     diag = torch.diag(pseudo_g) # 提取对角线元素（每个节点与自身的连接，值为1）
     pseudo_g = pseudo_g - torch.diag_embed(diag) # 用对角线元素构造对角矩阵并减去，使对角线为0
 
-    return pseudo_g
+    return pseudo_g.to(device)
 
 def high_confidence_adj(label_pred, dis, k=0.5, device=torch.device('cuda:0')):
     # dis = euclidean_distance(feature, centers, device=device)

@@ -3,6 +3,8 @@ import time
 import numpy as np
 import torch
 import torch.nn.functional as F
+import json
+import pandas as pd
 from sklearn.cluster import KMeans
 from sklearn.metrics import adjusted_rand_score, normalized_mutual_info_score
 
@@ -82,6 +84,11 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
 
     best_results = {}
     score_dict = {'loss': [], 'nmi_q': [], 'ari_q': []}
+
+    # Track best predictions/features for saving outputs
+    best_label_pred = None
+    best_label_pred_aligned = None
+    best_features_np = None
 
     idx = np.arange(len(gene_exp))
     save_adj_flag = 0 # 只在第一个epoch保存邻接矩阵
@@ -250,8 +257,19 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                 }, save_path)
 
 
-                show_tsne(features_np, label_pred_aligned, dataset, 999, tsne_perplexity=100, title='pred_label', scores=[acc, nmi, ari, f1])
-                show_tsne(features_np, real_label, dataset, 999, tsne_perplexity=100, title='real_label', scores=[acc, nmi, ari, f1])
+                if save_fig_flag:
+                    show_tsne(features_np, label_pred_aligned, dataset, 999, tsne_perplexity=100, title='pred_label', scores=[acc, nmi, ari, f1])
+                    show_tsne(features_np, real_label, dataset, 999, tsne_perplexity=100, title='real_label', scores=[acc, nmi, ari, f1])
+                # record best predictions/features for later saving
+                try:
+                    best_label_pred = label_pred.copy()
+                except Exception:
+                    best_label_pred = np.array(label_pred)
+                try:
+                    best_label_pred_aligned = label_pred_aligned.copy()
+                except Exception:
+                    best_label_pred_aligned = np.array(label_pred_aligned)
+                best_features_np = features_np.copy()
 
             
             if epoch == epochs - 1 and save_fig_flag:
@@ -278,6 +296,58 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
     best_results['ariq'] = best_ari
     best_results['f1q'] = best_f1
     best_results['epochq'] = best_epoch
+
+    # 保存训练输出（metrics.csv, predictions.csv, summary.json, pca_embeddings.csv）
+    try:
+        run_name = log_name if log_name else f"{dataset}_{time.strftime('%Y%m%d%H%M%S')}"
+        save_dir = os.path.join(os.getcwd(), "training_results", dataset, run_name)
+        os.makedirs(save_dir, exist_ok=True)
+
+        if best_label_pred is not None:
+            pred_df = pd.DataFrame({"label": real_label})
+            pred_df["scrgcl_pred"] = best_label_pred
+            pred_df["scrgcl_pred_aligned"] = best_label_pred_aligned
+            pred_path = os.path.join(save_dir, "predictions.csv")
+            pred_df.to_csv(pred_path, index=False)
+
+            metrics_row = {
+                "method": "scRGCL",
+                "ari": float(best_ari),
+                "nmi": float(best_nmi),
+                "acc": float(best_acc),
+                "f1": float(best_f1),
+                "n_clusters": int(len(np.unique(best_label_pred))),
+                "epoch": int(best_epoch),
+            }
+            metrics_df = pd.DataFrame([metrics_row])
+            metrics_path = os.path.join(save_dir, "metrics.csv")
+            metrics_df.to_csv(metrics_path, index=False)
+
+            summary = {
+                "dataset": dataset,
+                "n_cells": int(len(real_label)),
+                "n_genes_after_preprocess": int(gene_exp.shape[1]) if hasattr(gene_exp, "shape") else None,
+                "n_label_classes": int(len(np.unique(real_label))),
+                "results": best_results,
+                "run_name": run_name,
+            }
+            summary_path = os.path.join(save_dir, "summary.json")
+            with open(summary_path, "w", encoding="utf-8") as f:
+                json.dump(summary, f, indent=2, ensure_ascii=False)
+
+            if best_features_np is not None:
+                emb_path = os.path.join(save_dir, "pca_embeddings.csv")
+                pd.DataFrame(best_features_np).to_csv(emb_path, index=False)
+
+            if logger is not None:
+                logger.write(f"Saved training outputs to: {save_dir}")
+            else:
+                print(f"Saved training outputs to: {save_dir}")
+    except Exception as e:
+        if logger is not None:
+            logger.write(f"Failed saving training outputs: {e}")
+        else:
+            print(f"Failed saving training outputs: {e}")
 
     # 关闭TensorBoard写入器
     writer.close()

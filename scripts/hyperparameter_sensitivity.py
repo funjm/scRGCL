@@ -6,6 +6,12 @@ import time
 import argparse
 import numpy as np
 import matplotlib.pyplot as plt
+import sys
+from pathlib import Path
+
+# Ensure project root is on sys.path so `src` can be imported when running script directly
+sys.path.append(str(Path(__file__).parent.parent))
+
 from src import train
 from src.utils import get_dataset, set_random_seed, DualLogger
 from config.opt import args, reset_args
@@ -101,45 +107,71 @@ def sensitivity_analysis(hyperparameter_name, value_range, dataset_name=None, se
     logger.write(f"聚类数量: {cluster_number}")
     logger.write(f"超参数值范围: {value_range}")
     
-    # 存储结果
-    ari_scores = []
-    nmi_scores = []
+    # 存储结果（均值与标准差）
+    ari_means = []
+    ari_stds = []
+    nmi_means = []
+    nmi_stds = []
     
-    # 对每个超参数值运行实验
-    for value in value_range:
+    # 对每个超参数值运行实验（每个值重复运行三次，计算均值与标准差）
+    repeats = 3
+    for i, value in enumerate(value_range):
         logger.write(f"\n============= 测试 {hyperparameter_name} = {value} =============")
-        
-        # 运行实验
-        results = run_experiment(
-            gene_exp=gene_exp,
-            cluster_number=cluster_number,
-            dataset=args.sensitivity_dataset,
-            real_label=real_label,
-            hyperparameter_name=hyperparameter_name,
-            hyperparameter_value=value,
-            logger=logger
-        )
-        
-        # 收集结果
-        ari_scores.append(results['ariq'] * 100)
-        nmi_scores.append(results['nmiq'] * 100)
-        
-        logger.write(f"ARI: {results['ariq']*100:.2f}, NMI: {results['nmiq']*100:.2f}")
+
+        per_ari = []
+        per_nmi = []
+        for r in range(repeats):
+            run_seed = seed + r
+            set_random_seed(run_seed)
+            args.seed = run_seed
+
+            logger.write(f"  Repeat {r+1}/{repeats}, seed={run_seed}")
+
+            results = run_experiment(
+                gene_exp=gene_exp,
+                cluster_number=cluster_number,
+                dataset=args.sensitivity_dataset,
+                real_label=real_label,
+                hyperparameter_name=hyperparameter_name,
+                hyperparameter_value=value,
+                logger=logger
+            )
+
+            ari_val = results['ariq'] * 100
+            nmi_val = results['nmiq'] * 100
+            per_ari.append(ari_val)
+            per_nmi.append(nmi_val)
+            logger.write(f"  Repeat result ARI: {ari_val:.2f}, NMI: {nmi_val:.2f}")
+
+        # 统计均值与标准差
+        ari_mean = float(np.mean(per_ari))
+        ari_std = float(np.std(per_ari, ddof=0))
+        nmi_mean = float(np.mean(per_nmi))
+        nmi_std = float(np.std(per_nmi, ddof=0))
+
+        ari_means.append(ari_mean)
+        ari_stds.append(ari_std)
+        nmi_means.append(nmi_mean)
+        nmi_stds.append(nmi_std)
+
+        logger.write(f"Aggregated ARI mean={ari_mean:.2f}, std={ari_std:.2f}")
+        logger.write(f"Aggregated NMI mean={nmi_mean:.2f}, std={nmi_std:.2f}")
     
-    # 绘制折线图
+    # 绘制均值与标准差（带阴影）
+    x = np.array(value_range)
     plt.figure(figsize=(10, 5))
-    
-    # ARI折线图
+
+    # ARI折线图（均值 + 误差条）
     plt.subplot(1, 2, 1)
-    plt.plot(value_range, ari_scores, 'o-', linewidth=2, markersize=8)
+    plt.errorbar(x, ari_means, yerr=ari_stds, fmt='o-', capsize=4, linewidth=2, markersize=6, label='ARI Mean', ecolor='blue')
     plt.title(f'ARI Score vs param:{hyperparameter_name}')
     plt.xlabel(hyperparameter_name)
     plt.ylabel('ARI Score (%)')
     plt.grid(True)
-    
-    # NMI折线图
+
+    # NMI折线图（均值 + 误差条）
     plt.subplot(1, 2, 2)
-    plt.plot(value_range, nmi_scores, 'o-', linewidth=2, markersize=8, color='orange')
+    plt.errorbar(x, nmi_means, yerr=nmi_stds, fmt='o-', capsize=4, linewidth=2, markersize=6, label='NMI Mean', ecolor='orange', color='orange')
     plt.title(f'NMI Score vs param:{hyperparameter_name}')
     plt.xlabel(hyperparameter_name)
     plt.ylabel('NMI Score (%)')
@@ -154,26 +186,30 @@ def sensitivity_analysis(hyperparameter_name, value_range, dataset_name=None, se
     logger.write(f"\n图表已保存至: {save_dir}/{args.sensitivity_dataset}_{hyperparameter_name}_sensitivity_{current_date}.png")
     
     # 打印最佳结果
-    best_ari_idx = np.argmax(ari_scores)
-    best_nmi_idx = np.argmax(nmi_scores)
+    best_ari_idx = np.argmax(ari_means)
+    best_nmi_idx = np.argmax(nmi_means)
     
     logger.write(f"\n============= 最佳结果 =============")
-    logger.write(f"最佳ARI: {ari_scores[best_ari_idx]:.2f}% 在 {hyperparameter_name} = {value_range[best_ari_idx]}")
-    logger.write(f"最佳NMI: {nmi_scores[best_nmi_idx]:.2f}% 在 {hyperparameter_name} = {value_range[best_nmi_idx]}")
+    logger.write(f"最佳ARI: {ari_means[best_ari_idx]:.2f}% ± {ari_stds[best_ari_idx]:.2f} 在 {hyperparameter_name} = {value_range[best_ari_idx]}")
+    logger.write(f"最佳NMI: {nmi_means[best_nmi_idx]:.2f}% ± {nmi_stds[best_nmi_idx]:.2f} 在 {hyperparameter_name} = {value_range[best_nmi_idx]}")
     
     # 返回结果数据
     return {
         'parameter_name': hyperparameter_name,
         'parameter_values': value_range,
-        'ari_scores': ari_scores,
-        'nmi_scores': nmi_scores
+        'ari_means': ari_means,
+        'ari_stds': ari_stds,
+        'nmi_means': nmi_means,
+        'nmi_stds': nmi_stds,
     }
 
 # 默认超参数范围
 DEFAULT_PARAM_RANGES = {
     'temperature': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
     'k': [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
-    'n_neighbors': [2] + list(range(5, 51, 5))
+    # 'k': [0.1, 0.2],
+    'n_neighbors': [2] + list(range(5, 51, 5)),
+    'dropout': [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
 }
 
 def main():
@@ -220,6 +256,7 @@ def main():
     print(f"超参数值范围: {value_range}")
     if dataset:
         print(f"数据集: {dataset}")
+    args.name = dataset
     print(f"随机种子: {seed}")
     
     # 运行敏感度分析

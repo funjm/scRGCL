@@ -257,21 +257,21 @@ def get_ground_truth_labels(dataset):
     df = pd.read_csv(os.path.join(ziscDesk_base, dataset, 'Cells.csv'), index_col=0)
     
     # ======================Chung
-    Chung_dir = '/disk/fanjunming/home/workspace/bioinfo/dataset/ziscDesk-single-cell-data-20241011T104023Z-001/ziscDesk-single-cell-data/Chung'
-    Chung_cell_df = pd.read_csv(os.path.join(Chung_dir, f"GSE75688_final_sample_information.txt"), sep='\t')
-    Chung_gene_exp_df = pd.read_csv(os.path.join(Chung_dir, f"GSE75688_GEO_processed_Breast_Cancer_raw_TPM_matrix.txt"), sep='\t')
-    # 本来是gene x cell，需要转置为cell x gene，并将gene_id设置为索引
-    Chung_gene_exp_df = Chung_gene_exp_df.T
+    # Chung_dir = '/disk/fanjunming/home/workspace/bioinfo/dataset/ziscDesk-single-cell-data-20241011T104023Z-001/ziscDesk-single-cell-data/Chung'
+    # Chung_cell_df = pd.read_csv(os.path.join(Chung_dir, f"GSE75688_final_sample_information.txt"), sep='\t')
+    # Chung_gene_exp_df = pd.read_csv(os.path.join(Chung_dir, f"GSE75688_GEO_processed_Breast_Cancer_raw_TPM_matrix.txt"), sep='\t')
+    # # 本来是gene x cell，需要转置为cell x gene，并将gene_id设置为索引
+    # Chung_gene_exp_df = Chung_gene_exp_df.T
 
-    info_cells = set(Chung_cell_df['sample'])
-    expr_cells = set(Chung_gene_exp_df['gene_id'])
+    # info_cells = set(Chung_cell_df['sample'])
+    # expr_cells = set(Chung_gene_exp_df['gene_id'])
 
 
-    # 假设 tmp_df 的索引是 cell_id，assigned_cluster 是细胞类别
-    cell_type_mapping = tmp_df[['assigned_cluster']].reset_index()
-    # 将索引列重命名为与 target_df 一致的 'cell_id'
-    cell_type_mapping.rename(columns={'assigned_cluster': 'cell_type'}, inplace=True) 
-    cell_type_mapping['labels'], _ = pd.factorize(cell_type_mapping['cell_type'])
+    # # 假设 tmp_df 的索引是 cell_id，assigned_cluster 是细胞类别
+    # cell_type_mapping = tmp_df[['assigned_cluster']].reset_index()
+    # # 将索引列重命名为与 target_df 一致的 'cell_id'
+    # cell_type_mapping.rename(columns={'assigned_cluster': 'cell_type'}, inplace=True) 
+    # cell_type_mapping['labels'], _ = pd.factorize(cell_type_mapping['cell_type'])
 
     
 

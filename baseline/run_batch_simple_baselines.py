@@ -63,7 +63,8 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     
-    args.dataset_ids = [15]
+    # ！！！
+    args.dataset_ids = [10]
     os.makedirs(args.base_out_dir, exist_ok=True)
     summary_rows = []
 

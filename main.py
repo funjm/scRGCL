@@ -22,7 +22,7 @@ if __name__ == "__main__":
     data_dict = {0: 'Quake_10x_Bladder', 1: 'Quake_10x_Limb_Muscle', 2: 'Quake_10x_Spleen',
                  3: 'Quake_Smart-seq2_Diaphragm', 4: 'Quake_Smart-seq2_Limb_Muscle',
                  5: 'Romanov', 6: 'Muraro', 7: 'Klein', 8: 'Quake_Smart-seq2_Trachea',
-                 9:'Pollen', 10:'Chung', 11:'Baron1', 12:'Baron2', 13:'Baron3', 14:'Baron4'
+                 9:'Pollen', 10:'Chung', 11:'Baron1', 12:'Baron2', 13:'Baron3', 14:'Baron4', 15:'merged_annotated_cells'
                  }
     
     # 判断当前运行环境是否为 IDE（如 PyCharm、VSCode）或命令行终端  
@@ -43,6 +43,7 @@ if __name__ == "__main__":
 
     gene_exp = []
     real_label = []
+    args.name = data_dict[args.dataid]
     dataset = args.name
 
     # 获取当前日期，格式化为YYYYMMDD
@@ -71,7 +72,7 @@ if __name__ == "__main__":
                             dropout=args.dropout, layers=[args.enc_1, args.enc_2, args.enc_3, args.mlp_dim], batch_size=args.batch_size,
                             m=args.m, lambda_i=args.lambda_i, lambda_c=args.lambda_c, lambda_p=args.lambda_p,
                             k=args.k, n_neighbors=args.n_neighbors, save_pred=True, noise=args.noise, logger=logger, dataset=args.name,
-                            save_fig_flag=True, log_name=log_name)
+                            save_fig_flag=False, log_name=log_name)
 
 
     logger.write(f"============= {dataset}: RESULT =============")

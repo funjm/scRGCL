@@ -21,7 +21,11 @@ DATA_DICT = {
     5: 'Romanov', 6: 'Muraro', 7: 'Klein', 8: 'Quake_Smart-seq2_Trachea',
     9: 'Pollen', 10: 'Chung', 11: 'Baron1', 12: 'Baron2', 13: 'Baron3', 14: 'Baron4', 15: 'merged_annotated_cells'
 }
-
+# DATA_DICT = {
+#     3: 'Quake_Smart-seq2_Diaphragm', 4: 'Quake_Smart-seq2_Limb_Muscle',
+#     5: 'Romanov', 6: 'Muraro', 7: 'Klein', 8: 'Quake_Smart-seq2_Trachea',
+#     9: 'Pollen', 10: 'Chung', 11: 'Baron1', 12: 'Baron2', 13: 'Baron3', 14: 'Baron4', 15: 'merged_annotated_cells', 16: 'Quake_10x_Spleen',
+# }
 
 def parse_dataset_list(spec: str):
     spec = spec.strip()

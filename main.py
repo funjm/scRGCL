@@ -5,7 +5,7 @@ import torch
 
 from config.opt import args, reset_args, test_ablation
 import numpy as np
-from src import train
+from src import train, utils
 from src.utils import get_dataset, select_best_gpu, preprocess, preprocess_h5ad, get_logger, DualLogger, set_random_seed, show_heat_map
 import warnings
 import sys
@@ -57,7 +57,11 @@ if __name__ == "__main__":
 
     logger.write(f"============= {dataset} =============")
     logger.write(f"\nargs.temperature = {args.temperature}\nargs.k = {args.k}\nargs.n_neighbors = {args.n_neighbors}\nargs.batch_size = {args.batch_size}\n\nargs.dropout = {args.dropout}\nargs.lambda_c = {args.lambda_c}\nargs.lambda_p = {args.lambda_p}\nargs.lr = {args.lr}\nargs.seed = {args.seed}\nargs.noise = {args.noise}\nargs.m = {args.m}\n")
-    gene_exp, real_label = get_dataset(args.name)
+    
+    # gene_exp, real_label = get_dataset(args.name)
+    
+    gene_exp, real_label = utils.get_dataset(args.name)
+    gene_exp = utils.preprocess(gene_exp)
 
 
     print(f"The gene expression matrix shape is {gene_exp.shape}")

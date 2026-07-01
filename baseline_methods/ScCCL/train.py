@@ -114,7 +114,7 @@ def train_model(gene_exp, cluster_number, real_label, epochs, lr,
                 best_model = epoch
 
     model.eval()
-    PWD = '/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline_methods/ScCCL'
+    PWD = '/home/fanjunming/workspace/bioinfo/scRGCL/baseline_methods/ScCCL'
 
     model_fp = os.path.join(PWD, "save", opt.args.name, "checkpoint_{}.tar".format(best_model))
     model.load_state_dict(torch.load(model_fp, map_location=device.type)['net'])

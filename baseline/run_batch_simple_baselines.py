@@ -40,7 +40,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         '--base-out-dir',
-        default='/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/batch_simple_baselines',
+        default='/home/fanjunming/workspace/bioinfo/scRGCL/baseline/results/batch_simple_baselines',
         help='Base output directory for all datasets.',
     )
     parser.add_argument('--n-pcs', type=int, default=30)

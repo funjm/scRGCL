@@ -61,13 +61,12 @@ def parse_dataset_list(spec: str):
             result.append(p)
     return result
 
-
 def main():
     parser = argparse.ArgumentParser(description='Batch run ScCCL on multiple datasets')
     parser.add_argument('--datasets', default='all', help='Comma-separated dataset indices/names, a range like 0-14, or "all"')
     parser.add_argument('--python', default=sys.executable, help='Python executable to use')
-    parser.add_argument('--script', default='/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline_methods/ScCCL/main.py', help='Path to the ScCCL entry script')
-    parser.add_argument('--out-dir', default='/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/ScCCL', help='Directory for per-run metrics, predictions, embeddings, and summary files')
+    parser.add_argument('--script', default='/home/fanjunming/workspace/bioinfo/scRGCL/baseline_methods/ScCCL/main.py', help='Path to the ScCCL entry script')
+    parser.add_argument('--out-dir', default='/home/fanjunming/workspace/bioinfo/scRGCL/baseline/results/ScCCL', help='Directory for per-run metrics, predictions, embeddings, and summary files')
     parser.add_argument('--extra-args', default='', help='Extra arguments to forward to the script')
     args = parser.parse_args()
 

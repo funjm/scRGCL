@@ -176,7 +176,7 @@ if __name__ == "__main__":
                         help='To choose whether saves the cell embedding to the dict "./embedding"')
     parser.add_argument('--save_umap', type=str, default=False,
                         help='To choose whether saves the visualization to the dict "./umap_figure"')
-    parser.add_argument('--out-dir', type=str, default='/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/AttentionAE-sc',
+    parser.add_argument('--out-dir', type=str, default='/home/fanjunming/workspace/bioinfo/scRGCL/baseline/results/AttentionAE-sc',
                         help='output directory for run metrics, predictions, embeddings, and summary')
     parser.add_argument('--max_num_cell', type=int, default=10000,
                         help='''a maximum threshold about the number of cells use in the model building, 

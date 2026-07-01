@@ -110,7 +110,7 @@ def adjust_learning_rate(optimizer, epoch, lr):
 
     return lr
 
-PWD = '/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline_methods/ScCCL'
+PWD = '/home/fanjunming/workspace/bioinfo/scRGCL/baseline_methods/ScCCL'
 def save_model(name, model, optimizer, current_epoch, pre_epoch):
     if pre_epoch != -1:
         pre_path = os.path.join(PWD, "save", name, "checkpoint_{}.tar".format(pre_epoch))

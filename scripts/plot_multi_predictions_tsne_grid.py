@@ -20,6 +20,12 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).parent.parent))
 from src.utils import get_ground_truth_labels
 
+# 如果指定数据集：
+# python scripts/plot_multi_predictions_tsne_grid.py --dataset-name Pollen
+# 批量处理所有训练结果：
+# python scripts/plot_multi_predictions_tsne_grid.py --batch
+# 如需指定额外预测源：
+# python scripts/plot_multi_predictions_tsne_grid.py --source /path/to/predictions.csv:col1,col2
 
 PROJECT_ROOT = "/disk/fanjunming/home/workspace/bioinfo/scRGCL"
 TRAINING_RESULTS_ROOT = os.path.join(PROJECT_ROOT, "training_results")
@@ -27,6 +33,12 @@ BASELINE_BATCH_ROOT = os.path.join(PROJECT_ROOT, "baseline", "results", "batch_s
 DEFAULT_EMBEDDING_CSV = os.path.join(BASELINE_BATCH_ROOT, "Pollen", "pca_embeddings.csv")
 DEFAULT_LABEL_CSV = os.path.join(BASELINE_BATCH_ROOT, "Pollen", "predictions.csv")
 BASELINE_DEFAULT_COLUMNS = ["pca_leiden", "pca_louvain", "pca_kmeans"]
+EXTRA_BASELINE_METHOD_ROOTS = [
+    os.path.join(PROJECT_ROOT, "baseline", "results", "AttentionAE-sc"),
+    os.path.join(PROJECT_ROOT, "baseline", "results", "ScCCL"),
+    os.path.join(PROJECT_ROOT, "baseline", "results", "scLEGA-main"),
+    os.path.join(PROJECT_ROOT, "baseline", "results", "scSAMAC-cluster"),
+]
 
 
 def parse_args() -> argparse.Namespace:
@@ -58,6 +70,36 @@ def normalize_method_name(name: str) -> str:
 def prettify_method_name(name: str) -> str:
     """将内部名称转换为展示名称。"""
     return name.replace("_", " ").replace("+", " ").title()
+
+    """将方法名规范化为子图标题中展示的名称。"""
+    if not name:
+        return ""
+
+    normalized = normalize_method_name(str(name))
+    alias_map = {
+        "attentionaesc": "AttentionAE",
+        "attentionae": "AttentionAR",
+        "attentionar": "AttentionAR",
+        "scccl": "scCCL",
+        "sclega": "scLEGA",
+        "scsamac": "scSAMAC",
+        "scrgcl": "scRGCL",
+    }
+    if normalized in alias_map:
+        return alias_map[normalized]
+
+    return prettify_method_name(str(name))
+
+
+def sanitize_source_alias(source_alias: str) -> str:
+    """去掉来源目录中的日期/时间后缀，保留可读标识。"""
+    if not source_alias:
+        return ""
+
+    alias = str(source_alias).strip()
+    alias = re.sub(r"(?:^|_)(?:\d{8}(?:_\d{6})?)(?=$|_)", "", alias)
+    alias = alias.strip("._-")
+    return alias.replace("_", " ").replace("-", " ")
 
 
 def align_cluster_labels_local(y_true: np.ndarray, y_pred: np.ndarray) -> np.ndarray:
@@ -132,12 +174,39 @@ def load_metrics_map(predictions_path: str) -> dict:
 
     metrics_df = pd.read_csv(metrics_path)
     if "method" not in metrics_df.columns:
-        return {}
+        if 'Attention' in metrics_path:
+            metrics_df['method'] = 'AttentionAE'
+        elif 'ScCCL' in metrics_path:
+            metrics_df['method'] = 'ScCCL'
+        elif 'scLEGA' in metrics_path:
+            metrics_df['method'] = 'scLEGA'
+        elif 'scSAMAC' in metrics_path:
+            metrics_df['method'] = 'scSAMAC'
+    metrics_df = metrics_df[["method", "ari", "nmi"]]
 
     return {
         normalize_method_name(str(row["method"])): row
         for _, row in metrics_df.iterrows()
     }
+
+
+def labels_are_permutation_equivalent(
+    canonical_labels: np.ndarray,
+    predicted_labels: np.ndarray,
+) -> bool:
+    """判断预测标签是否与基准标签仅存在类别编号置换。"""
+    canonical_labels = np.asarray(canonical_labels)
+    predicted_labels = np.asarray(predicted_labels)
+    if len(canonical_labels) != len(predicted_labels):
+        return False
+
+    canonical_unique = np.unique(canonical_labels)
+    predicted_unique = np.unique(predicted_labels)
+    if len(canonical_unique) != len(predicted_unique):
+        return False
+
+    aligned_pred = align_cluster_labels_local(canonical_labels, predicted_labels)
+    return np.array_equal(aligned_pred, canonical_labels)
 
 
 def validate_prediction_source(
@@ -154,7 +223,7 @@ def validate_prediction_source(
         raise ValueError(
             f"Row mismatch for {predictions_path}: {len(df)} vs canonical {len(canonical_labels)}"
         )
-    if not np.array_equal(df["label"].to_numpy(), canonical_labels):
+    if not labels_are_permutation_equivalent(canonical_labels, df["label"].to_numpy()):
         raise ValueError(f"Label order/content mismatch for predictions file: {predictions_path}")
 
     missing_columns = [col for col in requested_columns if col not in df.columns]
@@ -255,10 +324,13 @@ def resolve_training_column(predictions_path: str) -> Optional[str]:
     return None
 
 
-def resolve_baseline_columns(predictions_path: str) -> list[str]:
-    """选择基线结果中要绘制的预测列。"""
+def resolve_prediction_columns(predictions_path: str) -> list[str]:
+    """选择结果文件中要绘制的预测列。"""
     df = pd.read_csv(predictions_path, nrows=1)
-    return [col for col in BASELINE_DEFAULT_COLUMNS if col in df.columns]
+    columns = [col for col in df.columns if col != "label"]
+    if any(col in BASELINE_DEFAULT_COLUMNS for col in columns):
+        return [col for col in BASELINE_DEFAULT_COLUMNS if col in columns]
+    return columns
 
 
 def discover_dataset_runs(dataset_name: str) -> list[str]:
@@ -281,6 +353,40 @@ def discover_dataset_runs(dataset_name: str) -> list[str]:
     return run_dirs
 
 
+def discover_extra_baseline_runs(dataset_name: str) -> list[str]:
+    """查找额外 baseline 方法目录中与数据集对应的最近一次运行。"""
+    run_dirs = []
+    for root in EXTRA_BASELINE_METHOD_ROOTS:
+        if not os.path.isdir(root):
+            continue
+
+        candidate_runs = []
+        for entry in sorted(os.listdir(root)):
+            run_dir = os.path.join(root, entry)
+            if not os.path.isdir(run_dir):
+                continue
+            predictions_path = os.path.join(run_dir, "predictions.csv")
+            if not os.path.exists(predictions_path):
+                continue
+            summary = read_summary(os.path.join(run_dir, "summary.json"))
+            if summary.get("dataset") != dataset_name:
+                continue
+            if 'Attention' in root:
+                candidate_runs.append(('AttentionAE', run_dir))
+            elif 'ScCCL' in root:
+                candidate_runs.append(('ScCCL', run_dir))
+            elif 'scLEGA' in root:
+                candidate_runs.append(('scLEGA', run_dir))
+            elif 'scSAMAC' in root:
+                candidate_runs.append(('scSAMAC', run_dir))
+            else:
+                candidate_runs.append((entry, run_dir))
+
+        if candidate_runs:
+            run_dirs.append(sorted(candidate_runs)[-1][1])
+    return run_dirs
+
+
 def build_auto_sources_for_dataset(dataset_name: str) -> tuple[str, str, list[str]]:
     """为数据集自动组装输入文件和来源。"""
     embedding_csv = os.path.join(BASELINE_BATCH_ROOT, dataset_name, "pca_embeddings.csv")
@@ -291,9 +397,16 @@ def build_auto_sources_for_dataset(dataset_name: str) -> tuple[str, str, list[st
         raise FileNotFoundError(f"Missing baseline embedding or label source for dataset {dataset_name}")
 
     source_specs = []
-    baseline_columns = resolve_baseline_columns(baseline_predictions)
+    baseline_columns = resolve_prediction_columns(baseline_predictions)
     if baseline_columns:
         source_specs.append(f"{baseline_predictions}:{','.join(baseline_columns)}")
+
+    extra_baseline_runs = discover_extra_baseline_runs(dataset_name)
+    for run_dir in extra_baseline_runs:
+        predictions_path = os.path.join(run_dir, "predictions.csv")
+        extra_columns = resolve_prediction_columns(predictions_path)
+        if extra_columns:
+            source_specs.append(f"{predictions_path}:{','.join(extra_columns)}")
 
     run_dirs = discover_dataset_runs(dataset_name)
     if not run_dirs:
@@ -326,8 +439,25 @@ def build_panel_specs(source_specs: list[str], canonical_labels: np.ndarray) -> 
             metric_row = metrics_map.get(normalize_method_name(column))
             if metric_row is None and normalize_method_name(column).startswith("scrgcl"):
                 metric_row = metrics_map.get(normalize_method_name("scRGCL"))
+            if metric_row is None and len(requested_columns) == 1 and len(metrics_map) == 1:
+                metric_row = next(iter(metrics_map.values()))
             aligned_pred = align_cluster_labels_local(canonical_labels, predictions_df[column].to_numpy())
             display_name = metric_row["method"] if metric_row is not None else prettify_method_name(column)
+            
+            display_name = metric_row["method"] if metric_row is not None else prettify_method_name(column)
+
+            # if 'Attention' in source_spec:
+            #     display_name = 'AttentionAE'
+            # elif 'ScCCL' in source_spec:
+            #     display_name = 'ScCCL'
+            # elif 'scLEGA' in source_spec:
+            #     display_name = 'scLEGA'
+            # elif 'scSAMAC' in source_spec:
+            #     display_name = 'scSAMAC'
+            # else:
+            #     display_name = metric_row["method"] if metric_row is not None else prettify_method_name(column)
+
+
             display_name_counts[display_name] = display_name_counts.get(display_name, 0) + 1
             panel_specs.append(
                 {
@@ -342,7 +472,9 @@ def build_panel_specs(source_specs: list[str], canonical_labels: np.ndarray) -> 
 
     for spec in panel_specs:
         if display_name_counts[spec["display_name"]] > 1:
-            spec["display_name"] = f"{spec['source_alias']} / {spec['display_name']}"
+            alias = sanitize_source_alias(spec["source_alias"])
+            if alias:
+                spec["display_name"] = f"{spec['display_name']} ({alias})"
 
     return panel_specs
 
@@ -494,6 +626,29 @@ def run_one_plot(
     """生成单个数据集的 t-SNE 对比图。"""
     pca_features, canonical_labels = load_canonical_inputs(embedding_csv, label_csv)# 获取各方法的制图信息，display_name，aligned_pred
     panel_specs = build_panel_specs(source_specs, canonical_labels)
+    
+    DESIRED_ORDER = [
+        "scRGCL",
+        "ScCCL", 
+        "scSAMAC", 
+        "scLEGA",
+        "AttentionAE",  
+        "PCA+KMeans", 
+        "PCA+Leiden", 
+        "PCA+Louvain", 
+    ]
+    
+    def get_order_index(spec):
+        display_name = spec["display_name"]
+        try:
+            return DESIRED_ORDER.index(display_name)
+        except ValueError:
+            return 999  # 如果有未知的模型，排到最后面
+        
+    # 按照定义的列表重新排序
+    panel_specs.sort(key=get_order_index)
+    
+    
     tsne_xy = compute_tsne(pca_features, perplexity=perplexity, seed=seed)
 
     os.makedirs(os.path.dirname(out_path), exist_ok=True)

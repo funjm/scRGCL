@@ -179,7 +179,7 @@ if __name__ == "__main__":
     parser.add_argument('--predict_label_file', default='pred_labels.txt',
                         help='file name to save final clustering labels')
     parser.add_argument('--device', default='cuda')
-    parser.add_argument('--out-dir', default='/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/scSAMAC-cluster')
+    parser.add_argument('--out-dir', default='/home/fanjunming/workspace/bioinfo/scRGCL/baseline/results/scSAMAC-cluster')
 
     args = parser.parse_args()
 

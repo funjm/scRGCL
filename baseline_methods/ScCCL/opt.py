@@ -18,6 +18,6 @@ parser.add_argument('--enc_2', type=int, default=40)
 parser.add_argument('--enc_3', type=int, default=60)
 parser.add_argument('--mlp_dim', type=int, default=40)
 parser.add_argument('--cluster_methods', type=str, default="KMeans")
-parser.add_argument('--out-dir', type=str, default='/disk/fanjunming/home/workspace/bioinfo/scRGCL/baseline/results/ScCCL')
+parser.add_argument('--out-dir', type=str, default='/home/fanjunming/workspace/bioinfo/scRGCL/baseline/results/ScCCL')
 
 args = parser.parse_args()

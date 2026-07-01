@@ -117,6 +117,13 @@ data/
 dataset/
 datasets/
 
+baseline/.claude/
+baseline/results/
+training_results/
+baseline_methods/scSAMAC-cluster/final_latent_file.txt
+baseline_methods/scSAMAC-cluster/pred_labels.txt
+training_results
+.claude
 # Personal batch scripts
 z_*.bat
 zendo*.sh
@@ -128,3 +135,14 @@ Figs/
 save/
 *.bmp
 *.tif
+
+# baseline_methods runtime artifacts
+baseline_methods/**/__pycache__/
+baseline_methods/**/model_save/
+baseline_methods/**/pred_label/
+baseline_methods/**/embedding/
+baseline_methods/**/umap_figure/
+baseline_methods/**/save/
+baseline_methods/**/results/
+baseline_methods/**/*.pth.tar
+baseline_methods/**/*.pth

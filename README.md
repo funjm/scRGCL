@@ -66,8 +66,6 @@ Datasets are automatically loaded from configured paths. Supported datasets incl
 | `Baron1-Baron4` | Baron human pancreatic datasets |
 
 ### 3. Testing with saved models
-After training, the best model is automatically saved to `saved_models/{dataset}/best_model.pt` when ARI improves.
-
 ```bash
 python test.py --name Quake_Smart-seq2_Trachea
 ```
